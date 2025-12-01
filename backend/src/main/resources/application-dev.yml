@@ -1,0 +1,29 @@
+# Development Profile Configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pokergto
+    # Homebrew PostgreSQL uses your Mac username, not 'postgres'
+    username: jackhuffman
+    password:
+    
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+
+  # H2 Console for development (optional)
+  h2:
+    console:
+      enabled: false
+
+logging:
+  level:
+    com.pokergto: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# Development JWT secret (DO NOT USE IN PRODUCTION)
+jwt:
+  secret: BsY9BhZY0o9wUFQ7qimJTwvef0M3asd0NCCoCrBy2E4=
+

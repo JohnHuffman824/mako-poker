@@ -1,0 +1,12 @@
+{
+  "name": "poker-gto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Poker GTO Assistant - Full stack app with Kotlin/Spring Boot backend and React frontend",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "backend": "cd backend && ./gradlew bootRun",
+    "start": "npm run backend & sleep 5 && npm run dev"
+  }
+}

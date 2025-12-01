@@ -1,0 +1,21 @@
+---
+description: General Coding Conventions
+globs: 
+alwaysApply: true
+---
+
+The followig is a list of coding conventions you must follow whenever writing new code
+
+- Try to include consicse and descriptive method comments when applicable 
+- Write inline comments when there are large blocks of code. Do not over-explain though, keep your comments concise and targeted. For instance, if a variable name describes its purpose you do not need to add an inline comment to double-explain its' purpose
+- When writing TypeScript use apostrophes for Strings rather than double quotes
+- Do not end lines with semicolons
+- Do not prefix variable names with $
+- Avoid using mocks in tests when possible. Try and test the actual production code
+- Use modern syntax when possible, for example ?? instead of ||
+- Do not go beyond 80 characters on a single line of code
+- Do not have methods longer than the length of the page (40 lines)
+- When modifying existing code be surgical and precise. Try to make as few changes as possible while still fully implementing the desired functionality
+- Make sure file names and classes match
+- Avoid using double negatives
+
