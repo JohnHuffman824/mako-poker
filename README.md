@@ -114,8 +114,3 @@ cd frontend
 npm run dev      # Development server
 npm run build    # Production build
 ```
-
-## License
-
-MIT
-
