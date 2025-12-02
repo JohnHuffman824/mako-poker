@@ -1,0 +1,15 @@
+numpy>=1.24.0
+h5py>=3.8.0
+tqdm>=4.65.0
+
+# PyTorch - choose ONE of the following:
+# For CPU only (works on all platforms):
+torch>=2.0.0
+
+# For AMD ROCm GPU (Linux only, uncomment and comment out CPU line above):
+# --extra-index-url https://download.pytorch.org/whl/rocm5.6
+# torch>=2.0.0
+
+# Optional: numba for JIT optimization (requires Python 3.10-3.13)
+# numba>=0.57.0
+
