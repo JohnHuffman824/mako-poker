@@ -1,6 +1,6 @@
 package com.mako.repository
 
-import com.mako.model.PokerAction
+import com.mako.enums.PokerAction
 import com.mako.model.Recommendation
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

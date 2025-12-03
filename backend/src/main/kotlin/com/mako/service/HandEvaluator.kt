@@ -1,7 +1,7 @@
 package com.mako.service
 
 import com.mako.model.Card
-import com.mako.model.Rank
+import com.mako.enums.Rank
 
 /**
  * Result of hand evaluation with standardized ranking.

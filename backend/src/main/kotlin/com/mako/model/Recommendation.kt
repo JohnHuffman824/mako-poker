@@ -1,5 +1,6 @@
 package com.mako.model
 
+import com.mako.enums.PokerAction
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import java.math.BigDecimal
@@ -62,16 +63,4 @@ class Recommendation(
     @Column(name = "created_at", updatable = false)
     val createdAt: Instant? = null
 )
-
-/**
- * Possible poker actions.
- */
-enum class PokerAction {
-    FOLD,
-    CHECK,
-    CALL,
-    BET,
-    RAISE,
-    ALL_IN
-}
 

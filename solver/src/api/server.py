@@ -18,8 +18,9 @@ from .models import (
     SolveRequest,
     SolveResponse,
     StrategyAction,
-    HealthResponse
+    HealthResponse,
 )
+from ..enums import ActionTypeEnum, StreetEnum, HealthStatusEnum
 from ..game.card import Card
 from ..game.game_state import GameState, Street
 from ..game.action import Action, ActionType
@@ -68,10 +69,12 @@ class SolverService:
 
         start_time = time.perf_counter()
 
-        # Parse cards
-        hole_cards = [Card.from_notation(c) for c in request.hole_cards]
+        # Convert CardModel to internal Card representation
+        hole_cards = [
+            Card.from_notation(c.notation) for c in request.hole_cards
+        ]
         community_cards = [
-            Card.from_notation(c) for c in request.community_cards
+            Card.from_notation(c.notation) for c in request.community_cards
         ]
 
         # Determine street
@@ -110,13 +113,16 @@ class SolverService:
 
         solve_time = (time.perf_counter() - start_time) * 1000
 
+        # Map internal Street to API StreetEnum
+        street_enum = StreetEnum(street.name)
+
         return SolveResponse(
             strategy=strategy_actions,
             recommended_action=recommended.action,
             recommended_amount=recommended.amount,
             confidence=recommended.probability,
             hand_bucket=hand_bucket,
-            street=street.name,
+            street=street_enum,
             solve_time_ms=round(solve_time, 2)
         )
 
@@ -189,8 +195,10 @@ class SolverService:
         result = []
         for i, action in enumerate(actions):
             prob = strategy[i] if i < len(strategy) else 0.0
+            # Map internal ActionType to API ActionTypeEnum
+            action_enum = ActionTypeEnum(action.type.value)
             result.append(StrategyAction(
-                action=action.type.value,
+                action=action_enum,
                 amount=action.amount,
                 probability=round(prob, 4),
                 ev=None
@@ -238,7 +246,7 @@ app = create_app()
 async def health_check() -> HealthResponse:
     """Health check endpoint for load balancers and monitoring."""
     return HealthResponse(
-        status='healthy',
+        status=HealthStatusEnum.HEALTHY,
         solver_loaded=solver_service.is_loaded(),
         model_iterations=solver_service._iterations
     )

@@ -1,6 +1,6 @@
 package com.mako.dto
 
-import com.mako.model.PokerAction
+import com.mako.enums.PokerAction
 import com.mako.model.Recommendation
 import java.math.BigDecimal
 import java.time.Instant

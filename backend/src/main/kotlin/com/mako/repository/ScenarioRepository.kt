@@ -1,7 +1,7 @@
 package com.mako.repository
 
 import com.mako.model.Scenario
-import com.mako.model.Street
+import com.mako.enums.Street
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

@@ -1,4 +1,4 @@
-package com.mako.model
+package com.mako.enums
 
 /**
  * Playing card ranks from lowest (TWO=2) to highest (ACE=14).

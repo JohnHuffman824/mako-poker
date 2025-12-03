@@ -1,8 +1,8 @@
 package com.mako.service
 
 import com.mako.model.Card
-import com.mako.model.Rank
-import com.mako.model.Suit
+import com.mako.enums.Rank
+import com.mako.enums.Suit
 
 /**
  * Centralized constants for poker game logic.

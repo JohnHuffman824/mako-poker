@@ -1,5 +1,7 @@
 package com.mako.model
 
+import com.mako.enums.Position
+import com.mako.enums.Street
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import java.math.BigDecimal
@@ -64,28 +66,4 @@ class Scenario(
     @OneToMany(mappedBy = "scenario", cascade = [CascadeType.ALL], orphanRemoval = true)
     val recommendations: MutableList<Recommendation> = mutableListOf()
 )
-
-/**
- * Player positions at the poker table.
- */
-enum class Position {
-    UTG,      // Under the Gun (first to act preflop)
-    UTG_1,    // UTG+1
-    MP,       // Middle Position
-    MP_1,     // Middle Position +1
-    CO,       // Cutoff
-    BTN,      // Button (dealer)
-    SB,       // Small Blind
-    BB        // Big Blind
-}
-
-/**
- * Betting streets in Hold'em.
- */
-enum class Street {
-    PREFLOP,
-    FLOP,
-    TURN,
-    RIVER
-}
 

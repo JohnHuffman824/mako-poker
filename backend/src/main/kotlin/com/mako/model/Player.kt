@@ -1,24 +1,7 @@
 package com.mako.model
 
 import com.mako.dto.PlayerDto
-
-/**
- * Available actions for a player on their turn.
- * Determines what buttons/options the UI should show.
- */
-enum class AvailableActions {
-	/** Player cannot act - folded, all-in, or waiting */
-	NONE,
-
-	/** No bet to face - can check, bet, or fold */
-	CHECK_BET_FOLD,
-
-	/** Facing a bet - must call, raise, or fold */
-	CALL_RAISE_FOLD,
-
-	/** Big blind special case - can check or raise after limps */
-	CHECK_RAISE_FOLD
-}
+import com.mako.enums.AvailableActions
 
 /**
  * Base interface for all poker players.

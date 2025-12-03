@@ -1,8 +1,8 @@
 package com.mako.dto
 
-import com.mako.model.Position
+import com.mako.enums.Position
 import com.mako.model.Scenario
-import com.mako.model.Street
+import com.mako.enums.Street
 import jakarta.validation.constraints.*
 import java.math.BigDecimal
 import java.time.Instant

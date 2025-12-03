@@ -1,6 +1,8 @@
 package com.mako.model
 
 import com.mako.dto.CardDto
+import com.mako.enums.Rank
+import com.mako.enums.Suit
 
 /**
  * Represents a playing card with type-safe rank and suit.

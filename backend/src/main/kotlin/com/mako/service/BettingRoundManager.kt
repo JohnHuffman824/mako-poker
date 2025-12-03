@@ -1,7 +1,7 @@
 package com.mako.service
 
 import com.mako.dto.BlindsDto
-import com.mako.model.AvailableActions
+import com.mako.enums.AvailableActions
 import com.mako.model.PokerPlayer
 import com.mako.service.GameConstants.ACTION_ALL_IN
 import com.mako.service.GameConstants.ACTION_BB
