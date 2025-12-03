@@ -6,10 +6,9 @@ while preserving strategic depth.
 """
 
 from typing import Optional
-import random
+import numpy as np
 
 from ..game.card import Card, Rank, Suit
-from ..game.deck import Deck
 from ..game.hand_evaluator import HandEvaluator
 
 
@@ -149,15 +148,11 @@ class HandBucketing:
         board: list[Card]
     ) -> float:
         """
-        Calculate equity via Monte Carlo simulation.
+        Calculate equity via vectorized Monte Carlo simulation.
 
-        Simulates random opponent hands and board runouts.
+        Uses numpy for efficient batch sampling of opponent hands and runouts.
         """
-        wins = 0
-        ties = 0
-        total = 0
-
-        # Cards that can't be dealt
+        # Build list of available cards (excluding known cards)
         dead_cards = set(hole_cards) | set(board)
         available = [
             Card(rank, suit)
@@ -166,28 +161,38 @@ class HandBucketing:
             if Card(rank, suit) not in dead_cards
         ]
 
+        num_available = len(available)
         cards_needed = 5 - len(board)
+        sample_size = 2 + cards_needed
 
-        for _ in range(self._equity_samples):
-            # Sample random opponent hand and remaining board
-            sampled = random.sample(available, 2 + cards_needed)
-            opp_cards = sampled[:2]
-            runout = sampled[2:]
+        # Generate all random indices at once using numpy
+        # Each row is one simulation: [opp1, opp2, runout1, runout2, ...]
+        rng = np.random.default_rng()
+        all_indices = np.array([
+            rng.choice(num_available, size=sample_size, replace=False)
+            for _ in range(self._equity_samples)
+        ])
 
+        # Track results
+        wins = 0
+        ties = 0
+
+        for indices in all_indices:
+            # Extract sampled cards
+            opp_cards = [available[indices[0]], available[indices[1]]]
+            runout = [available[idx] for idx in indices[2:]]
             full_board = board + runout
 
-            # Evaluate both hands
-            my_hand = HandEvaluator.evaluate(hole_cards, full_board)
-            opp_hand = HandEvaluator.evaluate(opp_cards, full_board)
+            # Evaluate hands
+            my_rank = HandEvaluator.evaluate(hole_cards, full_board).absolute_rank
+            opp_rank = HandEvaluator.evaluate(opp_cards, full_board).absolute_rank
 
-            if my_hand.absolute_rank > opp_hand.absolute_rank:
+            if my_rank > opp_rank:
                 wins += 1
-            elif my_hand.absolute_rank == opp_hand.absolute_rank:
+            elif my_rank == opp_rank:
                 ties += 1
 
-            total += 1
-
-        return (wins + ties / 2) / total if total > 0 else 0.5
+        return (wins + ties * 0.5) / self._equity_samples
 
     @property
     def num_preflop_buckets(self) -> int:

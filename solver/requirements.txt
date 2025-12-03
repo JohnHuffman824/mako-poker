@@ -10,6 +10,10 @@ torch>=2.0.0
 # --extra-index-url https://download.pytorch.org/whl/rocm5.6
 # torch>=2.0.0
 
+# FastAPI for ML microservice
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+
 # Optional: numba for JIT optimization (requires Python 3.10-3.13)
 # numba>=0.57.0
-
