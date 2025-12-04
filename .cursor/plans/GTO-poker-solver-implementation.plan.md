@@ -22,9 +22,9 @@
 │  │              │    │   ROCm/CPU)  │    │                      │  │
 │  └──────────────┘    └──────────────┘    └──────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
-                                │
-                      (File Transfer / Shared Storage)
-                                ▼
+																│
+											(File Transfer / Shared Storage)
+																▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        ONLINE (Mac / Server)                        │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐  │
@@ -83,9 +83,9 @@ solver/
 │   ├── test_hand_evaluator.py
 │   └── test_cfr.py
 └── scripts/
-    ├── train_preflop.py
-    ├── train_postflop.py
-    └── export_solutions.py
+		├── train_preflop.py
+		├── train_postflop.py
+		└── export_solutions.py
 ```
 
 ### 1.2 Core Dependencies
@@ -134,16 +134,16 @@ For Heads-Up preflop, group 169 starting hands into ~10-20 buckets based on:
 ```python
 # abstraction/hand_bucketing.py
 class HandBucketing:
-    def __init__(self, num_buckets: int = 20):
-        self.buckets = self._compute_preflop_buckets(num_buckets)
-    
-    def get_bucket(self, hole_cards: tuple, board: list) -> int:
-        """Returns bucket ID (0 to num_buckets-1)"""
-        if not board:  # Preflop
-            return self._preflop_bucket(hole_cards)
-        else:  # Postflop
-            equity = self._calculate_equity(hole_cards, board)
-            return self._equity_to_bucket(equity)
+		def __init__(self, num_buckets: int = 20):
+				self.buckets = self._compute_preflop_buckets(num_buckets)
+		
+		def get_bucket(self, hole_cards: tuple, board: list) -> int:
+				"""Returns bucket ID (0 to num_buckets-1)"""
+				if not board:  # Preflop
+						return self._preflop_bucket(hole_cards)
+				else:  # Postflop
+						equity = self._calculate_equity(hole_cards, board)
+						return self._equity_to_bucket(equity)
 ```
 
 
@@ -157,8 +157,8 @@ PREFLOP_ACTIONS = ['fold', 'call', 'raise_2.5x', 'raise_3x', 'all_in']
 POSTFLOP_ACTIONS = ['fold', 'check', 'call', 'bet_33', 'bet_67', 'bet_100', 'all_in']
 
 class ActionAbstraction:
-    def get_legal_actions(self, game_state) -> list:
-        """Returns abstracted action set based on street and pot"""
+		def get_legal_actions(self, game_state) -> list:
+				"""Returns abstracted action set based on street and pot"""
 ```
 
 ---
@@ -177,20 +177,20 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ```python
 # training/value_network.py
 class PokerValueNetwork(nn.Module):
-    """
-    Approximates counterfactual values for game states.
-    Input: [hand_bucket, board_texture, pot_size, action_history]
-    Output: EV for each possible action
-    """
-    def __init__(self, input_dim: int, hidden_dim: int = 256):
-        super().__init__()
-        self.network = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, len(ACTIONS))
-        )
+		"""
+		Approximates counterfactual values for game states.
+		Input: [hand_bucket, board_texture, pot_size, action_history]
+		Output: EV for each possible action
+		"""
+		def __init__(self, input_dim: int, hidden_dim: int = 256):
+				super().__init__()
+				self.network = nn.Sequential(
+						nn.Linear(input_dim, hidden_dim),
+						nn.ReLU(),
+						nn.Linear(hidden_dim, hidden_dim),
+						nn.ReLU(),
+						nn.Linear(hidden_dim, len(ACTIONS))
+				)
 ```
 
 ### 3.3 Deep CFR Training Loop
@@ -198,19 +198,19 @@ class PokerValueNetwork(nn.Module):
 ```python
 # training/trainer.py
 class DeepCFRTrainer:
-    """
-    Trains value network via self-play CFR iterations.
-    Stores advantage samples in reservoir, trains periodically.
-    """
-    def train(self, iterations: int, checkpoint_every: int = 10000):
-        for i in range(iterations):
-            # Sample game and traverse
-            cards = self.deal_random_hands()
-            self.cfr_traverse(cards, history='', reach_probs=[1.0, 1.0])
-            
-            if i % checkpoint_every == 0:
-                self.train_value_network()
-                self.save_checkpoint(f'checkpoint_{i}.pt')
+		"""
+		Trains value network via self-play CFR iterations.
+		Stores advantage samples in reservoir, trains periodically.
+		"""
+		def train(self, iterations: int, checkpoint_every: int = 10000):
+				for i in range(iterations):
+						# Sample game and traverse
+						cards = self.deal_random_hands()
+						self.cfr_traverse(cards, history='', reach_probs=[1.0, 1.0])
+						
+						if i % checkpoint_every == 0:
+								self.train_value_network()
+								self.save_checkpoint(f'checkpoint_{i}.pt')
 ```
 
 ---
@@ -235,16 +235,16 @@ class DeepCFRTrainer:
 ```python
 # export/strategy_exporter.py
 class StrategyExporter:
-    def export(self, trainer: DeepCFRTrainer, output_path: str):
-        """Export trained strategies to .gto binary format"""
-        with h5py.File(output_path, 'w') as f:
-            f.attrs['version'] = '1.0'
-            f.attrs['game_type'] = 'HUNL'
-            
-            # Export preflop
-            preflop_grp = f.create_group('preflop')
-            for infoset, strategy in trainer.get_preflop_strategies():
-                preflop_grp.create_dataset(infoset, data=strategy)
+		def export(self, trainer: DeepCFRTrainer, output_path: str):
+				"""Export trained strategies to .gto binary format"""
+				with h5py.File(output_path, 'w') as f:
+						f.attrs['version'] = '1.0'
+						f.attrs['game_type'] = 'HUNL'
+						
+						# Export preflop
+						preflop_grp = f.create_group('preflop')
+						for infoset, strategy in trainer.get_preflop_strategies():
+								preflop_grp.create_dataset(infoset, data=strategy)
 ```
 
 ---
@@ -258,20 +258,20 @@ class StrategyExporter:
 ```kotlin
 @Service
 class GtoSolutionLoader(
-    @Value("\${gto.solutions.path}") private val solutionsPath: String
+		@Value("\${gto.solutions.path}") private val solutionsPath: String
 ) {
-    private val preflopStrategies = ConcurrentHashMap<String, FloatArray>()
-    
-    @PostConstruct
-    fun loadSolutions() {
-        // Load preflop strategies into memory (small enough)
-        // Index postflop strategies for lazy loading
-    }
-    
-    fun getStrategy(infosetKey: String): FloatArray? {
-        return preflopStrategies[infosetKey] 
-            ?: loadFromDisk(infosetKey)
-    }
+		private val preflopStrategies = ConcurrentHashMap<String, FloatArray>()
+		
+		@PostConstruct
+		fun loadSolutions() {
+				// Load preflop strategies into memory (small enough)
+				// Index postflop strategies for lazy loading
+		}
+		
+		fun getStrategy(infosetKey: String): FloatArray? {
+				return preflopStrategies[infosetKey] 
+						?: loadFromDisk(infosetKey)
+		}
 }
 ```
 
@@ -282,28 +282,28 @@ class GtoSolutionLoader(
 ```kotlin
 @Service
 class GtoQueryService(
-    private val solutionLoader: GtoSolutionLoader,
-    private val handBucketing: HandBucketing,
-    private val redisTemplate: RedisTemplate<String, String>
+		private val solutionLoader: GtoSolutionLoader,
+		private val handBucketing: HandBucketing,
+		private val redisTemplate: RedisTemplate<String, String>
 ) {
-    /**
-     * Returns GTO strategy for current game state.
-     * Checks cache first, then loads from solution files.
-     */
-    fun getGtoStrategy(gameState: GameState): GtoStrategyResponse {
-        val infosetKey = buildInfosetKey(gameState)
-        
-        // Check Redis cache
-        val cached = redisTemplate.opsForValue().get(infosetKey)
-        if (cached != null) return deserialize(cached)
-        
-        // Load from solutions
-        val strategy = solutionLoader.getStrategy(infosetKey)
-        
-        // Cache and return
-        redisTemplate.opsForValue().set(infosetKey, serialize(strategy))
-        return GtoStrategyResponse(strategy)
-    }
+		/**
+		 * Returns GTO strategy for current game state.
+		 * Checks cache first, then loads from solution files.
+		 */
+		fun getGtoStrategy(gameState: GameState): GtoStrategyResponse {
+				val infosetKey = buildInfosetKey(gameState)
+				
+				// Check Redis cache
+				val cached = redisTemplate.opsForValue().get(infosetKey)
+				if (cached != null) return deserialize(cached)
+				
+				// Load from solutions
+				val strategy = solutionLoader.getStrategy(infosetKey)
+				
+				// Cache and return
+				redisTemplate.opsForValue().set(infosetKey, serialize(strategy))
+				return GtoStrategyResponse(strategy)
+		}
 }
 ```
 
@@ -314,22 +314,22 @@ Modify existing [backend/src/main/kotlin/com/mako/service/AiPlayerService.kt](ba
 ```kotlin
 @Service
 class AiPlayerService(
-    private val gtoQueryService: GtoQueryService
+		private val gtoQueryService: GtoQueryService
 ) {
-    enum class AiDifficulty { EASY, MEDIUM, HARD, GTO }
-    
-    fun getAction(gameState: GameState, difficulty: AiDifficulty): PlayerAction {
-        return when (difficulty) {
-            AiDifficulty.GTO -> getGtoAction(gameState)
-            AiDifficulty.HARD -> getExploitativeAction(gameState)
-            else -> getSimpleAction(gameState)
-        }
-    }
-    
-    private fun getGtoAction(gameState: GameState): PlayerAction {
-        val strategy = gtoQueryService.getGtoStrategy(gameState)
-        return sampleFromStrategy(strategy)
-    }
+		enum class AiDifficulty { EASY, MEDIUM, HARD, GTO }
+		
+		fun getAction(gameState: GameState, difficulty: AiDifficulty): PlayerAction {
+				return when (difficulty) {
+						AiDifficulty.GTO -> getGtoAction(gameState)
+						AiDifficulty.HARD -> getExploitativeAction(gameState)
+						else -> getSimpleAction(gameState)
+				}
+		}
+		
+		private fun getGtoAction(gameState: GameState): PlayerAction {
+				val strategy = gtoQueryService.getGtoStrategy(gameState)
+				return sampleFromStrategy(strategy)
+		}
 }
 ```
 
@@ -345,23 +345,23 @@ class AiPlayerService(
 @RestController
 @RequestMapping("/api/gto")
 class GtoController(
-    private val gtoQueryService: GtoQueryService
+		private val gtoQueryService: GtoQueryService
 ) {
-    @PostMapping("/analyze")
-    fun analyzePosition(@RequestBody request: GtoAnalysisRequest): GtoAnalysisResponse {
-        return gtoQueryService.analyzePosition(request)
-    }
-    
-    @GetMapping("/strategy")
-    fun getStrategy(
-        @RequestParam holeCards: String,
-        @RequestParam position: String,
-        @RequestParam board: String?,
-        @RequestParam potSize: Double,
-        @RequestParam actionHistory: String
-    ): GtoStrategyResponse {
-        return gtoQueryService.getStrategy(...)
-    }
+		@PostMapping("/analyze")
+		fun analyzePosition(@RequestBody request: GtoAnalysisRequest): GtoAnalysisResponse {
+				return gtoQueryService.analyzePosition(request)
+		}
+		
+		@GetMapping("/strategy")
+		fun getStrategy(
+				@RequestParam holeCards: String,
+				@RequestParam position: String,
+				@RequestParam board: String?,
+				@RequestParam potSize: Double,
+				@RequestParam actionHistory: String
+		): GtoStrategyResponse {
+				return gtoQueryService.getStrategy(...)
+		}
 }
 ```
 

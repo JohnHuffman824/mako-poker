@@ -9,13 +9,13 @@ from .game_enums import StreetEnum, PositionEnum, ActionTypeEnum
 from .api_enums import HealthStatusEnum
 
 __all__ = [
-    # Card enums
-    'Rank',
-    'Suit',
-    # Game enums
-    'StreetEnum',
-    'PositionEnum',
-    'ActionTypeEnum',
-    # API enums
-    'HealthStatusEnum',
+		# Card enums
+		'Rank',
+		'Suit',
+		# Game enums
+		'StreetEnum',
+		'PositionEnum',
+		'ActionTypeEnum',
+		# API enums
+		'HealthStatusEnum',
 ]

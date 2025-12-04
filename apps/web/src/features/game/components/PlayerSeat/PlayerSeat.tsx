@@ -3,21 +3,21 @@ import { cn } from '@/lib/utils'
 import { Card, StatsBubble, BetChip } from '../common'
 
 interface CardData {
-  rank: string
-  suit: string
+	rank: string
+	suit: string
 }
 
 interface PlayerSeatProps {
-  seatIndex: number
-  position: string
-  stack: number
-  holeCards: CardData[] | null
-  lastAction: string | null
-  isFolded: boolean
-  currentBet: number
-  isCurrentTurn: boolean
-  isTopPosition?: boolean
-  style?: CSSProperties
+	seatIndex: number
+	position: string
+	stack: number
+	holeCards: CardData[] | null
+	lastAction: string | null
+	isFolded: boolean
+	currentBet: number
+	isCurrentTurn: boolean
+	isTopPosition?: boolean
+	style?: CSSProperties
 }
 
 /**
@@ -25,89 +25,89 @@ interface PlayerSeatProps {
  * Layout varies based on position (top vs bottom of table).
  */
 export function PlayerSeat({
-  seatIndex,
-  position,
-  stack,
-  holeCards,
-  lastAction,
-  isFolded,
-  currentBet,
-  isCurrentTurn,
-  isTopPosition = false,
-  style,
+	seatIndex,
+	position,
+	stack,
+	holeCards,
+	lastAction,
+	isFolded,
+	currentBet,
+	isCurrentTurn,
+	isTopPosition = false,
+	style,
 }: PlayerSeatProps) {
-  const showCards = holeCards && holeCards.length > 0
+	const showCards = holeCards && holeCards.length > 0
 
-  // Determine if this is a top position based on seat index
-  // Seats 0, 1, 8 are typically at top of table
-  const isTop = isTopPosition || seatIndex <= 2 || seatIndex >= 7
+	// Determine if this is a top position based on seat index
+	// Seats 0, 1, 8 are typically at top of table
+	const isTop = isTopPosition || seatIndex <= 2 || seatIndex >= 7
 
-  return (
-    <div
-      style={style}
-      className={cn(
-        'flex flex-col items-center gap-2 transition-all duration-300',
-        isFolded && 'opacity-40'
-      )}
-    >
-      {/* For top positions: Cards first, then stats */}
-      {isTop ? (
-        <>
-      {/* Cards */}
-          <div className="flex gap-1.5">
-        {showCards ? (
-          holeCards.map((card, i) => (
-            <Card key={i} card={card} size="sm" />
-          ))
-        ) : (
-          <>
-            <Card faceDown size="sm" />
-            <Card faceDown size="sm" />
-          </>
-        )}
-      </div>
+	return (
+		<div
+			style={style}
+			className={cn(
+				'flex flex-col items-center gap-2 transition-all duration-300',
+				isFolded && 'opacity-40'
+			)}
+		>
+			{/* For top positions: Cards first, then stats */}
+			{isTop ? (
+				<>
+			{/* Cards */}
+					<div className="flex gap-1.5">
+				{showCards ? (
+					holeCards.map((card, i) => (
+						<Card key={i} card={card} size="sm" />
+					))
+				) : (
+					<>
+						<Card faceDown size="sm" />
+						<Card faceDown size="sm" />
+					</>
+				)}
+			</div>
 
-      {/* Stats bubble */}
-      <StatsBubble
-        stack={stack}
-        position={position}
-        lastAction={lastAction}
-        isActive={isCurrentTurn}
-      />
-        </>
-      ) : (
-        <>
-          {/* For bottom positions: Stats first, then cards */}
-          <StatsBubble
-            stack={stack}
-            position={position}
-            lastAction={lastAction}
-            isActive={isCurrentTurn}
-          />
+			{/* Stats bubble */}
+			<StatsBubble
+				stack={stack}
+				position={position}
+				lastAction={lastAction}
+				isActive={isCurrentTurn}
+			/>
+				</>
+			) : (
+				<>
+					{/* For bottom positions: Stats first, then cards */}
+					<StatsBubble
+						stack={stack}
+						position={position}
+						lastAction={lastAction}
+						isActive={isCurrentTurn}
+					/>
 
-          {/* Cards */}
-          <div className="flex gap-1.5">
-            {showCards ? (
-              holeCards.map((card, i) => (
-                <Card key={i} card={card} size="sm" />
-              ))
-            ) : (
-              <>
-                <Card faceDown size="sm" />
-                <Card faceDown size="sm" />
-              </>
-            )}
-          </div>
-        </>
-      )}
+					{/* Cards */}
+					<div className="flex gap-1.5">
+						{showCards ? (
+							holeCards.map((card, i) => (
+								<Card key={i} card={card} size="sm" />
+							))
+						) : (
+							<>
+								<Card faceDown size="sm" />
+								<Card faceDown size="sm" />
+							</>
+						)}
+					</div>
+				</>
+			)}
 
-      {/* Current bet indicator */}
-      {!isFolded && currentBet > 0 && (
-        <BetChip
-          amount={currentBet}
-          className="absolute -bottom-8 left-1/2 -translate-x-1/2"
-        />
-      )}
-    </div>
-  )
+			{/* Current bet indicator */}
+			{!isFolded && currentBet > 0 && (
+				<BetChip
+					amount={currentBet}
+					className="absolute -bottom-8 left-1/2 -translate-x-1/2"
+				/>
+			)}
+		</div>
+	)
 }

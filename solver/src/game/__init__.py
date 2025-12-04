@@ -7,17 +7,17 @@ from .action import Action, ActionType
 from .game_state import GameState, Street
 
 __all__ = [
-    'Card',
-    'Rank',
-    'Suit',
-    'Deck',
-    'HandType',
-    'HandRankingConstants',
-    'HandEvaluator',
-    'HandResult',
-    'Action',
-    'ActionType',
-    'GameState',
-    'Street',
+		'Card',
+		'Rank',
+		'Suit',
+		'Deck',
+		'HandType',
+		'HandRankingConstants',
+		'HandEvaluator',
+		'HandResult',
+		'Action',
+		'ActionType',
+		'GameState',
+		'Street',
 ]
 

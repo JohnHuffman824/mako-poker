@@ -7,39 +7,39 @@ import { GAME_DEFAULTS } from '../constants/game.constants'
  * Handles loading existing games and starting new ones.
  */
 export function useGame() {
-  const {
-    game,
-    isLoading,
-    error,
-    startGame,
-    loadCurrentGame,
-    clearError,
-  } = useGameStore()
+	const {
+		game,
+		isLoading,
+		error,
+		startGame,
+		loadCurrentGame,
+		clearError,
+	} = useGameStore()
 
-  const initializeGame = useCallback(async () => {
-    await loadCurrentGame()
-  }, [loadCurrentGame])
+	const initializeGame = useCallback(async () => {
+		await loadCurrentGame()
+	}, [loadCurrentGame])
 
-  const createNewGame = useCallback(async (
-    playerCount: number = GAME_DEFAULTS.PLAYER_COUNT
-  ) => {
-    await startGame(playerCount)
-  }, [startGame])
+	const createNewGame = useCallback(async (
+		playerCount: number = GAME_DEFAULTS.PLAYER_COUNT
+	) => {
+		await startGame(playerCount)
+	}, [startGame])
 
-  // Auto-create game if none exists after loading
-  useEffect(() => {
-    if (!game && !isLoading) {
-      createNewGame()
-    }
-  }, [game, isLoading, createNewGame])
+	// Auto-create game if none exists after loading
+	useEffect(() => {
+		if (!game && !isLoading) {
+			createNewGame()
+		}
+	}, [game, isLoading, createNewGame])
 
-  return {
-    game,
-    isLoading,
-    error,
-    initializeGame,
-    createNewGame,
-    clearError,
-  }
+	return {
+		game,
+		isLoading,
+		error,
+		initializeGame,
+		createNewGame,
+		clearError,
+	}
 }
 

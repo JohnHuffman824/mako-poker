@@ -29,30 +29,30 @@ export const DEBUG_SHOW_ALL_ELEMENTS = false
  * Mock data for debug mode rendering
  */
 export const DEBUG_DATA = {
-  // Sample community cards (all 5)
-  communityCards: [
-    { rank: 'A' as any, suit: 'spades' as any, display: 'A♠' },
-    { rank: 'K' as any, suit: 'hearts' as any, display: 'K♥' },
-    { rank: 'Q' as any, suit: 'diamonds' as any, display: 'Q♦' },
-    { rank: 'J' as any, suit: 'clubs' as any, display: 'J♣' },
-    { rank: 'T' as any, suit: 'spades' as any, display: '10♠' },
-  ],
-  
-  // Sample pot size
-  potSize: 12.5,
-  
-  // Sample bet markers for each seat
-  betMarkers: [
-    { seatIndex: 0, text: 'ALL IN 25 BB' },
-    { seatIndex: 1, text: 'ALL IN 25 BB' },
-    { seatIndex: 2, text: 'ALL IN 25 BB' },
-    { seatIndex: 3, text: 'ALL IN 25 BB' },
-    { seatIndex: 4, text: 'ALL IN 25 BB' },
-    { seatIndex: 5, text: 'ALL IN 25 BB' },
-    { seatIndex: 6, text: 'ALL IN 25 BB' },
-    { seatIndex: 7, text: 'ALL IN 25 BB' },
-    { seatIndex: 8, text: 'ALL IN 25 BB' },
-    { seatIndex: 9, text: 'ALL IN 25 BB' },
-  ],
+	// Sample community cards (all 5)
+	communityCards: [
+		{ rank: 'A' as any, suit: 'spades' as any, display: 'A♠' },
+		{ rank: 'K' as any, suit: 'hearts' as any, display: 'K♥' },
+		{ rank: 'Q' as any, suit: 'diamonds' as any, display: 'Q♦' },
+		{ rank: 'J' as any, suit: 'clubs' as any, display: 'J♣' },
+		{ rank: 'T' as any, suit: 'spades' as any, display: '10♠' },
+	],
+	
+	// Sample pot size
+	potSize: 12.5,
+	
+	// Sample bet markers for each seat
+	betMarkers: [
+		{ seatIndex: 0, text: 'ALL IN 25 BB' },
+		{ seatIndex: 1, text: 'ALL IN 25 BB' },
+		{ seatIndex: 2, text: 'ALL IN 25 BB' },
+		{ seatIndex: 3, text: 'ALL IN 25 BB' },
+		{ seatIndex: 4, text: 'ALL IN 25 BB' },
+		{ seatIndex: 5, text: 'ALL IN 25 BB' },
+		{ seatIndex: 6, text: 'ALL IN 25 BB' },
+		{ seatIndex: 7, text: 'ALL IN 25 BB' },
+		{ seatIndex: 8, text: 'ALL IN 25 BB' },
+		{ seatIndex: 9, text: 'ALL IN 25 BB' },
+	],
 }
 

@@ -33,7 +33,7 @@ test/
 ├── store/
 │   └── gameStore.spec.ts      # 8 tests - State management
 └── lib/
-    └── utils.spec.ts          # 10 tests - Utility functions
+		└── utils.spec.ts          # 10 tests - Utility functions
 ```
 
 ## Test Coverage
@@ -118,15 +118,15 @@ import { describe, it, expect } from 'bun:test'
 import { myFunction } from '../../lib/myFunction'
 
 describe('myFunction', () => {
-  it('returns expected value for valid input', () => {
-    const result = myFunction('input')
-    expect(result).toBe('expected')
-  })
+	it('returns expected value for valid input', () => {
+		const result = myFunction('input')
+		expect(result).toBe('expected')
+	})
 
-  it('handles edge case', () => {
-    const result = myFunction(null)
-    expect(result).toBeNull()
-  })
+	it('handles edge case', () => {
+		const result = myFunction(null)
+		expect(result).toBeNull()
+	})
 })
 ```
 
@@ -135,29 +135,29 @@ describe('myFunction', () => {
 ### Testing Position Functions
 ```typescript
 it('returns correct coordinates for seat 5', () => {
-  const pos = getDealerButtonPosition(5)
-  expect(pos.top).toBe(268)
-  expect(pos.left).toBe(720)
+	const pos = getDealerButtonPosition(5)
+	expect(pos.top).toBe(268)
+	expect(pos.left).toBe(720)
 })
 ```
 
 ### Testing Store State
 ```typescript
 it('updates state correctly', () => {
-  const store = useGameStore.getState()
-  
-  store.setAutoDeal(true)
-  
-  expect(useGameStore.getState().autoDeal).toBe(true)
+	const store = useGameStore.getState()
+	
+	store.setAutoDeal(true)
+	
+	expect(useGameStore.getState().autoDeal).toBe(true)
 })
 ```
 
 ### Testing Utility Functions
 ```typescript
 it('merges classes correctly', () => {
-  const result = cn('foo', 'bar')
-  expect(result).toContain('foo')
-  expect(result).toContain('bar')
+	const result = cn('foo', 'bar')
+	expect(result).toContain('foo')
+	expect(result).toContain('bar')
 })
 ```
 
@@ -171,9 +171,9 @@ bun test src/test/constants/positions.spec.ts
 ### Add Console Logs
 ```typescript
 it('my test', () => {
-  const result = myFunction()
-  console.log('Result:', result)
-  expect(result).toBe(expected)
+	const result = myFunction()
+	console.log('Result:', result)
+	expect(result).toBe(expected)
 })
 ```
 
@@ -189,8 +189,8 @@ Bun shows:
 Required packages in package.json:
 ```json
 "devDependencies": {
-  "@types/bun": "latest",
-  "@happy-dom/global-registrator": "^15.11.7"
+	"@types/bun": "latest",
+	"@happy-dom/global-registrator": "^15.11.7"
 }
 ```
 

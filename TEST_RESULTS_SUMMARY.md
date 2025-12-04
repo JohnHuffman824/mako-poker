@@ -214,13 +214,13 @@ npx jasmine-ts src/test/constants/positions.spec.ts
 ## Next Steps
 
 1. **Install Frontend Dependencies:**
-   ```bash
-   cd frontend && npm install
-   ```
+	 ```bash
+	 cd frontend && npm install
+	 ```
 
 2. **Fix Critical Bugs** identified by failing tests:
-   - Duplicate card dealing
-   - Hole cards not being dealt properly
+	 - Duplicate card dealing
+	 - Hole cards not being dealt properly
 
 3. **Run Frontend Tests** to verify UI utilities work correctly
 

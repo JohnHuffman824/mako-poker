@@ -125,9 +125,9 @@ val result = showdownService.determineWinners(players, community, sidePots)
 
 // Distribute winnings
 for (potWinner in result.potWinners) {
-    for (seat in potWinner.winnerSeats) {
-        player.stack += potWinner.amountPerWinner
-    }
+		for (seat in potWinner.winnerSeats) {
+				player.stack += potWinner.amountPerWinner
+		}
 }
 ```
 
@@ -138,18 +138,18 @@ for (potWinner in result.potWinners) {
 **Backend DTOs:**
 ```kotlin
 data class SidePotDto(
-    val id: Int,
-    val amount: Double,
-    val eligiblePlayerSeats: List<Int>,
-    val capPerPlayer: Double,
-    val isMainPot: Boolean,
-    val displayName: String
+		val id: Int,
+		val amount: Double,
+		val eligiblePlayerSeats: List<Int>,
+		val capPerPlayer: Double,
+		val isMainPot: Boolean,
+		val displayName: String
 )
 
 data class GameStateResponse(
-    // ... existing fields ...
-    val sidePots: List<SidePotDto> = emptyList(),
-    val playerContributions: Map<Int, Double> = emptyMap()
+		// ... existing fields ...
+		val sidePots: List<SidePotDto> = emptyList(),
+		val playerContributions: Map<Int, Double> = emptyMap()
 )
 ```
 
@@ -159,18 +159,18 @@ export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'T' | '
 export type Suit = 'spades' | 'hearts' | 'diamonds' | 'clubs'
 
 interface CardDto {
-  rank: Rank
-  suit: Suit
-  display: string
+	rank: Rank
+	suit: Suit
+	display: string
 }
 
 interface SidePotDto {
-  id: number
-  amount: number
-  eligiblePlayerSeats: number[]
-  capPerPlayer: number
-  isMainPot: boolean
-  displayName: string
+	id: number
+	amount: number
+	eligiblePlayerSeats: number[]
+	capPerPlayer: number
+	isMainPot: boolean
+	displayName: string
 }
 ```
 
@@ -276,15 +276,15 @@ interface SidePotDto {
 ```kotlin
 // Create cards
 val holeCards = listOf(
-    Card(Rank.ACE, Suit.HEARTS),
-    Card(Rank.ACE, Suit.DIAMONDS)
+		Card(Rank.ACE, Suit.HEARTS),
+		Card(Rank.ACE, Suit.DIAMONDS)
 )
 val community = listOf(
-    Card(Rank.KING, Suit.CLUBS),
-    Card(Rank.QUEEN, Suit.SPADES),
-    Card(Rank.JACK, Suit.HEARTS),
-    Card(Rank.TEN, Suit.DIAMONDS),
-    Card(Rank.NINE, Suit.CLUBS)
+		Card(Rank.KING, Suit.CLUBS),
+		Card(Rank.QUEEN, Suit.SPADES),
+		Card(Rank.JACK, Suit.HEARTS),
+		Card(Rank.TEN, Suit.DIAMONDS),
+		Card(Rank.NINE, Suit.CLUBS)
 )
 
 // Evaluate hand
@@ -297,7 +297,7 @@ val result = HandEvaluator.evaluate(holeCards, community)
 val hand1 = HandEvaluator.evaluate(player1Hole, community)
 val hand2 = HandEvaluator.evaluate(player2Hole, community)
 if (hand1.absoluteRank > hand2.absoluteRank) {
-    println("Player 1 wins with ${hand1.description}")
+		println("Player 1 wins with ${hand1.description}")
 }
 ```
 
@@ -313,25 +313,25 @@ val sidePots = potManager.calculatePots(game.playerContributions, activeSeats)
 
 // Determine winners
 val showdownPlayers = activePlayers.map {player ->
-    ShowdownPlayer(
-        seatIndex = player.seatIndex,
-        holeCards = player.holeCards.toList(),
-        isFolded = player.isFolded
-    )
+		ShowdownPlayer(
+				seatIndex = player.seatIndex,
+				holeCards = player.holeCards.toList(),
+				isFolded = player.isFolded
+		)
 }
 
 val result = showdownService.determineWinners(
-    showdownPlayers,
-    game.communityCards.toList(),
-    sidePots
+		showdownPlayers,
+		game.communityCards.toList(),
+		sidePots
 )
 
 // Distribute winnings
 for (potWinner in result.potWinners) {
-    println("${potWinner.pot.displayName}: ${potWinner.winnerSeats} win ${potWinner.amountPerWinner} each")
-    for (seat in potWinner.winnerSeats) {
-        game.players.find { it.seatIndex == seat }?.stack += potWinner.amountPerWinner
-    }
+		println("${potWinner.pot.displayName}: ${potWinner.winnerSeats} win ${potWinner.amountPerWinner} each")
+		for (seat in potWinner.winnerSeats) {
+				game.players.find { it.seatIndex == seat }?.stack += potWinner.amountPerWinner
+		}
 }
 ```
 
@@ -347,7 +347,7 @@ for (potWinner in result.potWinners) {
 **Test Results:**
 ```
 Test Files  3 passed (3)
-     Tests  37 passed (37)
+		 Tests  37 passed (37)
 ```
 
 ## What's Next
@@ -412,8 +412,8 @@ result.absoluteRank = 7296  // Full House, Aces over Kings
 // Multiple pot support
 game.sidePots = [mainPot, sidePot1, sidePot2]
 for (potWinner in showdownResults) {
-    // Each pot awarded to best eligible hand
-    distributeWinnings(potWinner)
+		// Each pot awarded to best eligible hand
+		distributeWinnings(potWinner)
 }
 ```
 

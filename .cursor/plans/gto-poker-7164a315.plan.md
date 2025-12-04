@@ -61,15 +61,15 @@ poker-gto/
 
 ```kotlin
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-core")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+		implementation("org.springframework.boot:spring-boot-starter-web")
+		implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+		implementation("org.springframework.boot:spring-boot-starter-security")
+		implementation("org.springframework.boot:spring-boot-starter-websocket")
+		implementation("org.springframework.boot:spring-boot-starter-validation")
+		implementation("org.postgresql:postgresql")
+		implementation("org.flywaydb:flyway-core")
+		implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+		implementation("io.jsonwebtoken:jjwt-api:0.12.3")
 }
 ```
 
@@ -80,65 +80,65 @@ dependencies {
 ```sql
 -- Users & Authentication
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    display_name VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		email VARCHAR(255) UNIQUE NOT NULL,
+		password_hash VARCHAR(255) NOT NULL,
+		display_name VARCHAR(100),
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		last_login TIMESTAMP
 );
 
 -- Poker Sessions
 CREATE TABLE sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id),
-    hands_played INTEGER DEFAULT 0,
-    session_pnl DECIMAL(12,2) DEFAULT 0,
-    gto_adherence DECIMAL(5,2) DEFAULT 0,
-    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ended_at TIMESTAMP
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		user_id UUID REFERENCES users(id),
+		hands_played INTEGER DEFAULT 0,
+		session_pnl DECIMAL(12,2) DEFAULT 0,
+		gto_adherence DECIMAL(5,2) DEFAULT 0,
+		started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		ended_at TIMESTAMP
 );
 
 -- Hand Scenarios (for analysis history)
 CREATE TABLE scenarios (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    session_id UUID REFERENCES sessions(id),
-    hole_cards VARCHAR(10) NOT NULL,        -- e.g., "AsKh"
-    community_cards VARCHAR(25),             -- e.g., "9h7s2dTcJd"
-    position VARCHAR(10) NOT NULL,
-    player_count INTEGER NOT NULL,
-    player_stack DECIMAL(12,2) NOT NULL,
-    pot_size DECIMAL(12,2) NOT NULL,
-    blinds VARCHAR(20) NOT NULL,
-    street VARCHAR(10) NOT NULL,            -- preflop, flop, turn, river
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		session_id UUID REFERENCES sessions(id),
+		hole_cards VARCHAR(10) NOT NULL,        -- e.g., "AsKh"
+		community_cards VARCHAR(25),             -- e.g., "9h7s2dTcJd"
+		position VARCHAR(10) NOT NULL,
+		player_count INTEGER NOT NULL,
+		player_stack DECIMAL(12,2) NOT NULL,
+		pot_size DECIMAL(12,2) NOT NULL,
+		blinds VARCHAR(20) NOT NULL,
+		street VARCHAR(10) NOT NULL,            -- preflop, flop, turn, river
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- GTO Recommendations
 CREATE TABLE recommendations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    scenario_id UUID REFERENCES scenarios(id),
-    recommended_action VARCHAR(20) NOT NULL,
-    action_confidence DECIMAL(5,2) NOT NULL,
-    call_pct DECIMAL(5,2),
-    raise_pct DECIMAL(5,2),
-    fold_pct DECIMAL(5,2),
-    recommended_bet_size DECIMAL(12,2),
-    equity DECIMAL(5,4) NOT NULL,
-    expected_value DECIMAL(12,4),
-    calculation_time_ms INTEGER,
-    solver_depth INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		scenario_id UUID REFERENCES scenarios(id),
+		recommended_action VARCHAR(20) NOT NULL,
+		action_confidence DECIMAL(5,2) NOT NULL,
+		call_pct DECIMAL(5,2),
+		raise_pct DECIMAL(5,2),
+		fold_pct DECIMAL(5,2),
+		recommended_bet_size DECIMAL(12,2),
+		equity DECIMAL(5,4) NOT NULL,
+		expected_value DECIMAL(12,4),
+		calculation_time_ms INTEGER,
+		solver_depth INTEGER,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Pre-computed solver results cache
 CREATE TABLE solver_cache (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    situation_hash VARCHAR(64) UNIQUE NOT NULL,  -- Hash of game state
-    strategy_data JSONB NOT NULL,                 -- CFR strategy output
-    iterations INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		situation_hash VARCHAR(64) UNIQUE NOT NULL,  -- Hash of game state
+		strategy_data JSONB NOT NULL,                 -- CFR strategy output
+		iterations INTEGER NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -190,22 +190,22 @@ WebSocket:
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }  // Disabled for API, use CORS
-            .cors { it.configurationSource(corsConfigurationSource()) }
-            .sessionManagement { 
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
-            }
-            .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**").permitAll()
-                it.requestMatchers("/api/analyze/quick").permitAll()
-                it.anyRequest().authenticated()
-            }
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthFilter::class.java)
-        return http.build()
-    }
+		@Bean
+		fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+				http
+						.csrf { it.disable() }  // Disabled for API, use CORS
+						.cors { it.configurationSource(corsConfigurationSource()) }
+						.sessionManagement { 
+								it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+						}
+						.authorizeHttpRequests {
+								it.requestMatchers("/api/auth/**").permitAll()
+								it.requestMatchers("/api/analyze/quick").permitAll()
+								it.anyRequest().authenticated()
+						}
+						.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthFilter::class.java)
+				return http.build()
+		}
 }
 ```
 
@@ -222,107 +222,107 @@ class SecurityConfig {
 ```kotlin
 // solver/GameState.kt
 data class GameState(
-    val holeCards: List<Card>,
-    val communityCards: List<Card>,
-    val potSize: Double,
-    val playerStacks: List<Double>,
-    val currentPlayer: Int,
-    val street: Street,
-    val actionHistory: List<Action>,
-    val isTerminal: Boolean
+		val holeCards: List<Card>,
+		val communityCards: List<Card>,
+		val potSize: Double,
+		val playerStacks: List<Double>,
+		val currentPlayer: Int,
+		val street: Street,
+		val actionHistory: List<Action>,
+		val isTerminal: Boolean
 )
 
 // solver/InformationSet.kt
 data class InformationSet(
-    val cardAbstraction: String,    // Bucketed cards
-    val actionSequence: String,      // Betting history
-    val potFraction: Double          // SPR bucket
+		val cardAbstraction: String,    // Bucketed cards
+		val actionSequence: String,      // Betting history
+		val potFraction: Double          // SPR bucket
 ) {
-    // CFR stores regrets and strategies per info set
-    var cumulativeRegrets: DoubleArray = DoubleArray(NUM_ACTIONS)
-    var cumulativeStrategy: DoubleArray = DoubleArray(NUM_ACTIONS)
-    
-    fun getStrategy(): DoubleArray {
-        // Regret matching algorithm
-        val strategy = DoubleArray(NUM_ACTIONS)
-        var normalizingSum = 0.0
-        
-        for (a in 0 until NUM_ACTIONS) {
-            strategy[a] = maxOf(cumulativeRegrets[a], 0.0)
-            normalizingSum += strategy[a]
-        }
-        
-        for (a in 0 until NUM_ACTIONS) {
-            strategy[a] = if (normalizingSum > 0) {
-                strategy[a] / normalizingSum
-            } else {
-                1.0 / NUM_ACTIONS
-            }
-        }
-        return strategy
-    }
+		// CFR stores regrets and strategies per info set
+		var cumulativeRegrets: DoubleArray = DoubleArray(NUM_ACTIONS)
+		var cumulativeStrategy: DoubleArray = DoubleArray(NUM_ACTIONS)
+		
+		fun getStrategy(): DoubleArray {
+				// Regret matching algorithm
+				val strategy = DoubleArray(NUM_ACTIONS)
+				var normalizingSum = 0.0
+				
+				for (a in 0 until NUM_ACTIONS) {
+						strategy[a] = maxOf(cumulativeRegrets[a], 0.0)
+						normalizingSum += strategy[a]
+				}
+				
+				for (a in 0 until NUM_ACTIONS) {
+						strategy[a] = if (normalizingSum > 0) {
+								strategy[a] / normalizingSum
+						} else {
+								1.0 / NUM_ACTIONS
+						}
+				}
+				return strategy
+		}
 }
 
 // solver/CFRSolver.kt
 class CFRSolver(
-    private val gameTree: GameTree,
-    private val cardAbstraction: CardAbstraction,
-    private val betAbstraction: BetAbstraction
+		private val gameTree: GameTree,
+		private val cardAbstraction: CardAbstraction,
+		private val betAbstraction: BetAbstraction
 ) {
-    private val infoSets = ConcurrentHashMap<String, InformationSet>()
-    
-    fun solve(iterations: Int): SolverResult {
-        repeat(iterations) { i ->
-            val cards = dealRandomHands()
-            cfr(gameTree.root, cards, 1.0, 1.0)
-            
-            if (i % 1000 == 0) {
-                publishProgress(i, iterations)
-            }
-        }
-        return buildResult()
-    }
-    
-    private fun cfr(
-        node: GameNode,
-        cards: DealtCards,
-        reachProb0: Double,
-        reachProb1: Double
-    ): Double {
-        if (node.isTerminal) {
-            return node.getUtility(cards)
-        }
-        
-        val infoSet = getInfoSet(node, cards)
-        val strategy = infoSet.getStrategy()
-        val utilities = DoubleArray(NUM_ACTIONS)
-        var nodeUtility = 0.0
-        
-        for (a in node.legalActions.indices) {
-            val childNode = node.children[a]
-            utilities[a] = if (node.currentPlayer == 0) {
-                -cfr(childNode, cards, reachProb0 * strategy[a], reachProb1)
-            } else {
-                -cfr(childNode, cards, reachProb0, reachProb1 * strategy[a])
-            }
-            nodeUtility += strategy[a] * utilities[a]
-        }
-        
-        // Update regrets
-        val opponentReachProb = if (node.currentPlayer == 0) reachProb1 else reachProb0
-        for (a in node.legalActions.indices) {
-            val regret = utilities[a] - nodeUtility
-            infoSet.cumulativeRegrets[a] += opponentReachProb * regret
-        }
-        
-        // Update average strategy
-        val playerReachProb = if (node.currentPlayer == 0) reachProb0 else reachProb1
-        for (a in node.legalActions.indices) {
-            infoSet.cumulativeStrategy[a] += playerReachProb * strategy[a]
-        }
-        
-        return nodeUtility
-    }
+		private val infoSets = ConcurrentHashMap<String, InformationSet>()
+		
+		fun solve(iterations: Int): SolverResult {
+				repeat(iterations) { i ->
+						val cards = dealRandomHands()
+						cfr(gameTree.root, cards, 1.0, 1.0)
+						
+						if (i % 1000 == 0) {
+								publishProgress(i, iterations)
+						}
+				}
+				return buildResult()
+		}
+		
+		private fun cfr(
+				node: GameNode,
+				cards: DealtCards,
+				reachProb0: Double,
+				reachProb1: Double
+		): Double {
+				if (node.isTerminal) {
+						return node.getUtility(cards)
+				}
+				
+				val infoSet = getInfoSet(node, cards)
+				val strategy = infoSet.getStrategy()
+				val utilities = DoubleArray(NUM_ACTIONS)
+				var nodeUtility = 0.0
+				
+				for (a in node.legalActions.indices) {
+						val childNode = node.children[a]
+						utilities[a] = if (node.currentPlayer == 0) {
+								-cfr(childNode, cards, reachProb0 * strategy[a], reachProb1)
+						} else {
+								-cfr(childNode, cards, reachProb0, reachProb1 * strategy[a])
+						}
+						nodeUtility += strategy[a] * utilities[a]
+				}
+				
+				// Update regrets
+				val opponentReachProb = if (node.currentPlayer == 0) reachProb1 else reachProb0
+				for (a in node.legalActions.indices) {
+						val regret = utilities[a] - nodeUtility
+						infoSet.cumulativeRegrets[a] += opponentReachProb * regret
+				}
+				
+				// Update average strategy
+				val playerReachProb = if (node.currentPlayer == 0) reachProb0 else reachProb1
+				for (a in node.legalActions.indices) {
+						infoSet.cumulativeStrategy[a] += playerReachProb * strategy[a]
+				}
+				
+				return nodeUtility
+		}
 }
 ```
 
@@ -333,13 +333,13 @@ class CFRSolver(
 ```kotlin
 // solver/abstraction/CardAbstraction.kt
 class EMDCardAbstraction : CardAbstraction {
-    // Earth Mover's Distance clustering
-    // Groups hands by equity distribution similarity
-    
-    fun getAbstractedHand(holeCards: List<Card>, board: List<Card>): Int {
-        val equityHistogram = calculateEquityHistogram(holeCards, board)
-        return findNearestCluster(equityHistogram)
-    }
+		// Earth Mover's Distance clustering
+		// Groups hands by equity distribution similarity
+		
+		fun getAbstractedHand(holeCards: List<Card>, board: List<Card>): Int {
+				val equityHistogram = calculateEquityHistogram(holeCards, board)
+				return findNearestCluster(equityHistogram)
+		}
 }
 ```
 
@@ -348,15 +348,15 @@ class EMDCardAbstraction : CardAbstraction {
 ```kotlin
 // solver/abstraction/BetAbstraction.kt
 class FCPABetAbstraction : BetAbstraction {
-    // Fold, Check, Pot-sized bet, All-in
-    override fun getLegalBetSizes(potSize: Double, stack: Double): List<Double> {
-        return listOf(
-            0.0,           // Check/Fold
-            potSize * 0.5, // Half pot
-            potSize,       // Pot
-            stack          // All-in
-        ).filter { it <= stack }
-    }
+		// Fold, Check, Pot-sized bet, All-in
+		override fun getLegalBetSizes(potSize: Double, stack: Double): List<Double> {
+				return listOf(
+						0.0,           // Check/Fold
+						potSize * 0.5, // Half pot
+						potSize,       // Pot
+						stack          // All-in
+				).filter { it <= stack }
+		}
 }
 ```
 
@@ -365,23 +365,23 @@ class FCPABetAbstraction : BetAbstraction {
 ```kotlin
 // Use Kotlin coroutines for parallel CFR
 class ParallelCFRSolver {
-    suspend fun solve(iterations: Int) = coroutineScope {
-        val chunks = iterations / Runtime.getRuntime().availableProcessors()
-        
-        (0 until availableProcessors()).map { 
-            async(Dispatchers.Default) {
-                solveChunk(chunks)
-            }
-        }.awaitAll()
-        
-        mergeResults()
-    }
+		suspend fun solve(iterations: Int) = coroutineScope {
+				val chunks = iterations / Runtime.getRuntime().availableProcessors()
+				
+				(0 until availableProcessors()).map { 
+						async(Dispatchers.Default) {
+								solveChunk(chunks)
+						}
+				}.awaitAll()
+				
+				mergeResults()
+		}
 }
 
 // Cache frequently accessed info sets in Redis
 @Cacheable("infoSets")
 fun getStrategy(infoSetKey: String): Strategy {
-    // ...
+		// ...
 }
 ```
 
@@ -434,7 +434,7 @@ frontend/src/
 │   ├── poker-logic.ts         # Keep existing logic
 │   └── websocket.ts           # WebSocket client
 └── types/
-    └── generated/             # OpenAPI generated types
+		└── generated/             # OpenAPI generated types
 ```
 
 ### 3.2 State Management with Zustand
@@ -446,34 +446,34 @@ frontend/src/
 import { create } from 'zustand'
 
 interface GameState {
-  currentGame: Game | null
-  recommendation: GTORecommendation | null
-  isCalculating: boolean
-  
-  // Actions
-  setGame: (game: Game) => void
-  setRecommendation: (rec: GTORecommendation) => void
-  submitScenario: (scenario: Scenario) => Promise<void>
+	currentGame: Game | null
+	recommendation: GTORecommendation | null
+	isCalculating: boolean
+	
+	// Actions
+	setGame: (game: Game) => void
+	setRecommendation: (rec: GTORecommendation) => void
+	submitScenario: (scenario: Scenario) => Promise<void>
 }
 
 export const useGameStore = create<GameState>((set) => ({
-  currentGame: null,
-  recommendation: null,
-  isCalculating: false,
-  
-  setGame: (game) => set({ currentGame: game }),
-  setRecommendation: (rec) => set({ recommendation: rec }),
-  
-  submitScenario: async (scenario) => {
-    set({ isCalculating: true })
-    try {
-      const result = await solverApi.analyze(scenario)
-      set({ recommendation: result, isCalculating: false })
-    } catch (error) {
-      set({ isCalculating: false })
-      throw error
-    }
-  }
+	currentGame: null,
+	recommendation: null,
+	isCalculating: false,
+	
+	setGame: (game) => set({ currentGame: game }),
+	setRecommendation: (rec) => set({ recommendation: rec }),
+	
+	submitScenario: async (scenario) => {
+		set({ isCalculating: true })
+		try {
+			const result = await solverApi.analyze(scenario)
+			set({ recommendation: result, isCalculating: false })
+		} catch (error) {
+			set({ isCalculating: false })
+			throw error
+		}
+	}
 }))
 ```
 
@@ -484,26 +484,26 @@ export const useGameStore = create<GameState>((set) => ({
 import { Client } from '@stomp/stompjs'
 
 class PokerWebSocket {
-  private client: Client
-  
-  constructor() {
-    this.client = new Client({
-      brokerURL: 'ws://localhost:8080/ws',
-      reconnectDelay: 5000
-    })
-  }
-  
-  subscribeToGame(gameId: string, callback: (msg: GameUpdate) => void) {
-    this.client.subscribe(`/topic/game/${gameId}`, (message) => {
-      callback(JSON.parse(message.body))
-    })
-  }
-  
-  subscribeToOverlay(callback: (msg: OverlayUpdate) => void) {
-    this.client.subscribe('/user/queue/overlay', (message) => {
-      callback(JSON.parse(message.body))
-    })
-  }
+	private client: Client
+	
+	constructor() {
+		this.client = new Client({
+			brokerURL: 'ws://localhost:8080/ws',
+			reconnectDelay: 5000
+		})
+	}
+	
+	subscribeToGame(gameId: string, callback: (msg: GameUpdate) => void) {
+		this.client.subscribe(`/topic/game/${gameId}`, (message) => {
+			callback(JSON.parse(message.body))
+		})
+	}
+	
+	subscribeToOverlay(callback: (msg: OverlayUpdate) => void) {
+		this.client.subscribe('/user/queue/overlay', (message) => {
+			callback(JSON.parse(message.body))
+		})
+	}
 }
 ```
 
@@ -516,39 +516,39 @@ class PokerWebSocket {
 ```kotlin
 // service/ai/AIOpponent.kt
 sealed class AIOpponent(val name: String) {
-    abstract fun getAction(gameState: GameState): Action
+		abstract fun getAction(gameState: GameState): Action
 }
 
 class EasyBot : AIOpponent("Rookie Rick") {
-    // Random with basic hand strength awareness
-    override fun getAction(gameState: GameState): Action {
-        val handStrength = evaluateHand(gameState)
-        return when {
-            handStrength > 0.8 -> Action.Raise(gameState.potSize)
-            handStrength > 0.5 -> Action.Call
-            random() < 0.3 -> Action.Call  // Loose calls
-            else -> Action.Fold
-        }
-    }
+		// Random with basic hand strength awareness
+		override fun getAction(gameState: GameState): Action {
+				val handStrength = evaluateHand(gameState)
+				return when {
+						handStrength > 0.8 -> Action.Raise(gameState.potSize)
+						handStrength > 0.5 -> Action.Call
+						random() < 0.3 -> Action.Call  // Loose calls
+						else -> Action.Fold
+				}
+		}
 }
 
 class MediumBot : AIOpponent("Calculated Carl") {
-    // Uses simplified GTO with exploitative adjustments
-    override fun getAction(gameState: GameState): Action {
-        val strategy = getSimplifiedStrategy(gameState)
-        return sampleAction(strategy)
-    }
+		// Uses simplified GTO with exploitative adjustments
+		override fun getAction(gameState: GameState): Action {
+				val strategy = getSimplifiedStrategy(gameState)
+				return sampleAction(strategy)
+		}
 }
 
 class HardBot : AIOpponent("GTO Gary") {
-    // Uses full CFR-derived strategy
-    @Autowired
-    private lateinit var solverService: SolverService
-    
-    override fun getAction(gameState: GameState): Action {
-        val strategy = solverService.getStrategy(gameState)
-        return sampleFromStrategy(strategy)
-    }
+		// Uses full CFR-derived strategy
+		@Autowired
+		private lateinit var solverService: SolverService
+		
+		override fun getAction(gameState: GameState): Action {
+				val strategy = solverService.getStrategy(gameState)
+				return sampleFromStrategy(strategy)
+		}
 }
 ```
 
@@ -558,37 +558,37 @@ class HardBot : AIOpponent("GTO Gary") {
 // service/GameService.kt
 @Service
 class GameService(
-    private val gameRepository: GameRepository,
-    private val aiFactory: AIOpponentFactory,
-    private val messagingTemplate: SimpMessagingTemplate
+		private val gameRepository: GameRepository,
+		private val aiFactory: AIOpponentFactory,
+		private val messagingTemplate: SimpMessagingTemplate
 ) {
-    fun startGame(userId: UUID, difficulty: Difficulty): Game {
-        val game = Game(
-            userId = userId,
-            opponent = aiFactory.create(difficulty),
-            playerStack = 100.0,  // Big blinds
-            opponentStack = 100.0
-        )
-        return gameRepository.save(game)
-    }
-    
-    fun processAction(gameId: UUID, action: Action): GameState {
-        val game = gameRepository.findById(gameId)
-        game.applyAction(action)
-        
-        if (game.isOpponentTurn()) {
-            val aiAction = game.opponent.getAction(game.state)
-            game.applyAction(aiAction)
-            
-            // Real-time update via WebSocket
-            messagingTemplate.convertAndSend(
-                "/topic/game/${gameId}",
-                GameUpdate(game.state, aiAction)
-            )
-        }
-        
-        return gameRepository.save(game).state
-    }
+		fun startGame(userId: UUID, difficulty: Difficulty): Game {
+				val game = Game(
+						userId = userId,
+						opponent = aiFactory.create(difficulty),
+						playerStack = 100.0,  // Big blinds
+						opponentStack = 100.0
+				)
+				return gameRepository.save(game)
+		}
+		
+		fun processAction(gameId: UUID, action: Action): GameState {
+				val game = gameRepository.findById(gameId)
+				game.applyAction(action)
+				
+				if (game.isOpponentTurn()) {
+						val aiAction = game.opponent.getAction(game.state)
+						game.applyAction(aiAction)
+						
+						// Real-time update via WebSocket
+						messagingTemplate.convertAndSend(
+								"/topic/game/${gameId}",
+								GameUpdate(game.state, aiAction)
+						)
+				}
+				
+				return gameRepository.save(game).state
+		}
 }
 ```
 
@@ -627,24 +627,24 @@ poker-overlay/
 import * as tf from '@tensorflow/tfjs-node'
 
 class CardRecognizer {
-  private model: tf.LayersModel
-  
-  async loadModel() {
-    this.model = await tf.loadLayersModel('file://./models/card-recognition/model.json')
-  }
-  
-  async recognizeCards(screenshot: Buffer, regions: CardRegion[]): Promise<Card[]> {
-    const cards: Card[] = []
-    
-    for (const region of regions) {
-      const cardImage = this.extractRegion(screenshot, region)
-      const tensor = this.preprocessImage(cardImage)
-      const prediction = this.model.predict(tensor)
-      cards.push(this.decodeCard(prediction))
-    }
-    
-    return cards
-  }
+	private model: tf.LayersModel
+	
+	async loadModel() {
+		this.model = await tf.loadLayersModel('file://./models/card-recognition/model.json')
+	}
+	
+	async recognizeCards(screenshot: Buffer, regions: CardRegion[]): Promise<Card[]> {
+		const cards: Card[] = []
+		
+		for (const region of regions) {
+			const cardImage = this.extractRegion(screenshot, region)
+			const tensor = this.preprocessImage(cardImage)
+			const prediction = this.model.predict(tensor)
+			cards.push(this.decodeCard(prediction))
+		}
+		
+		return cards
+	}
 }
 ```
 
@@ -663,7 +663,7 @@ poker-extension/
 ├── popup/
 │   └── Popup.tsx            # Extension popup UI
 └── overlay/
-    └── OverlayInjector.ts   # Inject GTO overlay
+		└── OverlayInjector.ts   # Inject GTO overlay
 ```
 
 ---
@@ -675,33 +675,33 @@ poker-extension/
 ```yaml
 # infrastructure/docker-compose.yml (local dev)
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DATABASE_URL=postgresql://postgres:5432/pokergto
-    depends_on:
-      - postgres
-      - redis
-      
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-      
-  postgres:
-    image: postgres:16
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=pokergto
-      
-  redis:
-    image: redis:7
-    volumes:
-      - redis_data:/data
+	backend:
+		build: ./backend
+		ports:
+			- "8080:8080"
+		environment:
+			- SPRING_PROFILES_ACTIVE=dev
+			- DATABASE_URL=postgresql://postgres:5432/pokergto
+		depends_on:
+			- postgres
+			- redis
+			
+	frontend:
+		build: ./frontend
+		ports:
+			- "3000:3000"
+			
+	postgres:
+		image: postgres:16
+		volumes:
+			- postgres_data:/var/lib/postgresql/data
+		environment:
+			- POSTGRES_DB=pokergto
+			
+	redis:
+		image: redis:7
+		volumes:
+			- redis_data:/data
 ```
 
 **AWS Architecture:**
@@ -719,26 +719,26 @@ services:
 # .github/workflows/deploy.yml
 name: Deploy
 on:
-  push:
-    branches: [main]
-    
+	push:
+		branches: [main]
+		
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run backend tests
-        run: cd backend && ./gradlew test
-      - name: Run frontend tests
-        run: cd frontend && npm test
-        
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to AWS
-        run: |
-          aws ecs update-service --cluster pokergto --service backend
+	test:
+		runs-on: ubuntu-latest
+		steps:
+			- uses: actions/checkout@v4
+			- name: Run backend tests
+				run: cd backend && ./gradlew test
+			- name: Run frontend tests
+				run: cd frontend && npm test
+				
+	deploy:
+		needs: test
+		runs-on: ubuntu-latest
+		steps:
+			- name: Deploy to AWS
+				run: |
+					aws ecs update-service --cluster pokergto --service backend
 ```
 
 ---

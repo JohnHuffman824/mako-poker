@@ -16,8 +16,8 @@
 #### Backend: `CardEnums.kt`
 - **Before:** `Suit.fromSymbol()` accepted multiple formats (single char, full name, unicode)
 - **After:** Split into focused methods:
-  - `fromSymbol()` - Single character only (s/h/d/c)
-  - `fromDisplayName()` - Full name only (spades/hearts/diamonds/clubs)
+	- `fromSymbol()` - Single character only (s/h/d/c)
+	- `fromDisplayName()` - Full name only (spades/hearts/diamonds/clubs)
 - **Impact:** Each method has single purpose, fails fast on invalid input
 
 #### Frontend: `PlayingCard.tsx`
@@ -103,14 +103,14 @@
 **Architecture:**
 ```
 Model Layer (Data Only):
-  Card, CardEnums, PokerPlayer, SidePot
+	Card, CardEnums, PokerPlayer, SidePot
 
 Service Layer (Business Logic):
-  HandEvaluator, HandRankings, PotManager, ShowdownService
-  GameService (orchestration)
+	HandEvaluator, HandRankings, PotManager, ShowdownService
+	GameService (orchestration)
 
 DTO Layer (API Boundary):
-  CardDto, PlayerDto, SidePotDto, GameStateResponse
+	CardDto, PlayerDto, SidePotDto, GameStateResponse
 ```
 
 **Every class in its own file** ✅

@@ -7,37 +7,37 @@ import { api } from '@/api/client'
  * Protected route wrapper that redirects to login if not authenticated.
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = api.getToken()
-  
-  if (!token) {
-    return <Redirect to="/login" />
-  }
-  
-  return <>{children}</>
+	const token = api.getToken()
+	
+	if (!token) {
+		return <Redirect to="/login" />
+	}
+	
+	return <>{children}</>
 }
 
 /**
  * Main application with routing.
  */
 function App() {
-  return (
-    <Switch>
-      <Route path="/login">
-        <LoginPage />
-      </Route>
-      
-      <Route path="/game">
-        <ProtectedRoute>
-          <GamePage />
-        </ProtectedRoute>
-      </Route>
-      
-      {/* Default redirect to game (will redirect to login if not authed) */}
-      <Route>
-        <Redirect to="/game" />
-      </Route>
-    </Switch>
-  )
+	return (
+		<Switch>
+			<Route path="/login">
+				<LoginPage />
+			</Route>
+			
+			<Route path="/game">
+				<ProtectedRoute>
+					<GamePage />
+				</ProtectedRoute>
+			</Route>
+			
+			{/* Default redirect to game (will redirect to login if not authed) */}
+			<Route>
+				<Redirect to="/game" />
+			</Route>
+		</Switch>
+	)
 }
 
 export default App

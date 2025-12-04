@@ -12,14 +12,14 @@ Main components:
 - api: FastAPI microservice for serving strategies
 
 Usage:
-    # Train Kuhn Poker (validates CFR implementation)
-    python -m src.cli train --solver kuhn --iterations 100000
+		# Train Kuhn Poker (validates CFR implementation)
+		python -m src.cli train --solver kuhn --iterations 100000
 
-    # Train tabular CFR+ for Heads-Up NLHE
-    python -m src.cli train --solver tabular --iterations 10000
+		# Train tabular CFR+ for Heads-Up NLHE
+		python -m src.cli train --solver tabular --iterations 10000
 
-    # Start API server
-    uvicorn src.api.server:app --host 0.0.0.0 --port 8081
+		# Start API server
+		uvicorn src.api.server:app --host 0.0.0.0 --port 8081
 """
 
 __version__ = '0.1.0'

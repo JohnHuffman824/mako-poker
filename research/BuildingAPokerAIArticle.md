@@ -23,41 +23,41 @@ The InformationSet class
 We keep track of the cumulative regrets, and for regret matching we only use the positive regrets. What we need for a strategy is a probability distribution, so the items in our array need to be non-negative and sum to 1. For this we make use of a utility function to normalize a vector by simply dividing by the sum of its elements:
 
 def normalize(self, strategy: np.array) -> np.array:
-    if sum(strategy) > 0:
-        strategy /= sum(strategy)
-    else:
-        strategy = np.array([1.0 / self.num_actions] * self.num_actions)
-    return strategy
+		if sum(strategy) > 0:
+				strategy /= sum(strategy)
+		else:
+				strategy = np.array([1.0 / self.num_actions] * self.num_actions)
+		return strategy
 
 When we ask for the current strategy, we add this strategy to the strategy sum, weighted by the probability that we reach the current node according to our strategy in the current iteration:
 
 def get_strategy(self, reach_probability: float) -> np.array:
-    strategy = np.maximum(0, self.cumulative_regrets)
-    strategy = self.normalize(strategy)
+		strategy = np.maximum(0, self.cumulative_regrets)
+		strategy = self.normalize(strategy)
 
-    self.strategy_sum += reach_probability * strategy
-    return strategy
+		self.strategy_sum += reach_probability * strategy
+		return strategy
 
 The KuhnPoker class
 As Kuhn Poker is a simple game, we just enumerate the action history strings for the terminal game states:
 
 def is_terminal(history: str) -> bool:
-    return history in ['BC', 'BB', 'CC', 'CBB', 'CBC']
+		return history in ['BC', 'BB', 'CC', 'CBB', 'CBC']
 
 For the payoffs, there’s plenty of ways to turn this into code. I have chosen a variant that I feel strikes a reasonable balance between conciseness and readability:
 
 def get_payoff(history: str, cards: List[str]) -> int:
-    if history in ['BC', 'CBC']:
-        return +1
-    else:  # CC or BB or CBB
-        payoff = 2 if 'B' in history else 1
-        active_player = len(history) % 2
-        player_card = cards[active_player]
-        opponent_card = cards[(active_player + 1) % 2]
-        if player_card == 'K' or opponent_card == 'J':
-            return payoff
-        else:
-            return -payoff
+		if history in ['BC', 'CBC']:
+				return +1
+		else:  # CC or BB or CBB
+				payoff = 2 if 'B' in history else 1
+				active_player = len(history) % 2
+				player_card = cards[active_player]
+				opponent_card = cards[(active_player + 1) % 2]
+				if player_card == 'K' or opponent_card == 'J':
+						return payoff
+				else:
+						return -payoff
 
 The payoff is given for the currently active player, so the last action in the history string was taken by the opponent. We first treat the 2 cases where the opponent folded by checking the history string. Where it comes to a showdown, we determine who the active player is from the length of the history string, and then use the fact that the current player wins if he holds a King or if the opponent holds a Jack.
 
@@ -67,56 +67,56 @@ The KuhnPokerCFRTrainer class
 This is where the magic happens. But before we get to the core CFR routine, let us quickly look at the rest of the class. We store a map from string to Informationset called infoset_map and implement a method to look up the correct information set. As we previously discussed, the only hidden information is the opponents’ card, so for the lookup we combine our card with a history of all the actions. The latter we conveniently already keep track of in history . We implement this in get_information_set :
 
 def get_information_set(self, card_and_history: str) -> InformationSet:
-    if card_and_history not in self.infoset_map:
-        self.infoset_map[card_and_history] = InformationSet()
-    return self.infoset_map[card_and_history]
+		if card_and_history not in self.infoset_map:
+				self.infoset_map[card_and_history] = InformationSet()
+		return self.infoset_map[card_and_history]
 
 We also provide a train function that sets up the game and calls the CFR routinenum_iterations times. As you can see we do not actually start the CFR call at the root node of the game tree. Instead, we use chance sampling which means we resolve the outcomes of chance nodes first, fix them, and then run the CFR algorithm. During the CFR routing we then only need to branch out on decision nodes, not on chance nodes. In a game like Kuhn Poker that may not matter too much as we only have 6 possible outcomes for the single chance node, but in Texas Hold’em, the number of possible starting hands for each player is 169, and that is before community cards have been dealt!
 
 def train(self, num_iterations: int) -> int:
-    util = 0
-    kuhn_cards = ['J', 'Q', 'K']
-    for _ in range(num_iterations):
-        cards = random.sample(kuhn_cards, 2)
-        history = ''
-        reach_probabilities = np.ones(2)
-        util += self.cfr(cards, history, reach_probabilities, 0)
-    return util
+		util = 0
+		kuhn_cards = ['J', 'Q', 'K']
+		for _ in range(num_iterations):
+				cards = random.sample(kuhn_cards, 2)
+				history = ''
+				reach_probabilities = np.ones(2)
+				util += self.cfr(cards, history, reach_probabilities, 0)
+		return util
 
 Keeping track of the aggregated utility for the starting player is not strictly necessary, but we use it to check the correctness of our implementation against known results for the payoff Player 1 can expect with optimal play.
 
 def cfr(
-        self, 
-        cards: List[str], 
-        history: str, 
-        reach_probabilities: np.array, 
-        active_player: int) -> int:
-    if KuhnPoker.is_terminal(history):
-        return KuhnPoker.get_payoff(history, cards)
+				self, 
+				cards: List[str], 
+				history: str, 
+				reach_probabilities: np.array, 
+				active_player: int) -> int:
+		if KuhnPoker.is_terminal(history):
+				return KuhnPoker.get_payoff(history, cards)
 
-    my_card = cards[active_player]
-    info_set = self.get_information_set(my_card + history)
+		my_card = cards[active_player]
+		info_set = self.get_information_set(my_card + history)
 
-    strategy = info_set.get_strategy(reach_probabilities[active_player])
-    opponent = (active_player + 1) % 2
-    counterfactual_values = np.zeros(len(Actions))
+		strategy = info_set.get_strategy(reach_probabilities[active_player])
+		opponent = (active_player + 1) % 2
+		counterfactual_values = np.zeros(len(Actions))
 
-    for ix, action in enumerate(Actions):
-        action_probability = strategy[ix]
+		for ix, action in enumerate(Actions):
+				action_probability = strategy[ix]
 
-        new_reach_probabilities = reach_probabilities.copy()
-        new_reach_probabilities[active_player] *= action_probability
+				new_reach_probabilities = reach_probabilities.copy()
+				new_reach_probabilities[active_player] *= action_probability
 
-        counterfactual_values[ix] = -self.cfr(
-            cards, history + action, new_reach_probabilities, opponent)
+				counterfactual_values[ix] = -self.cfr(
+						cards, history + action, new_reach_probabilities, opponent)
 
-    node_value = counterfactual_values.dot(strategy)
-    for ix, action in enumerate(Actions):
-        counterfactual_regret[ix] = \
-            reach_probabilities[opponent] * (counterfactual_values[ix] - node_value)
-        info_set.cumulative_regrets[ix] += counterfactual_regret[ix]
+		node_value = counterfactual_values.dot(strategy)
+		for ix, action in enumerate(Actions):
+				counterfactual_regret[ix] = \
+						reach_probabilities[opponent] * (counterfactual_values[ix] - node_value)
+				info_set.cumulative_regrets[ix] += counterfactual_regret[ix]
 
-    return node_value
+		return node_value
 
 This is the core CFR routine. We first check if we are in a terminal state and if so, return the payoff. Otherwise, we retrieve the information set and the current regret-matching strategy. Then we loop over all possible actions (lines 17–24), compute the new reach probabilities for the next game state and call the function recursively. As there are 2 players taking turns, the utility for one player is exactly -1 times the utility for the other, hence the minus sign in front of the cfr call. What we compute here for each action is in fact the counterfactual value. After the loop over all possible actions finishes, we compute the value of the current state node_value (line 26), given our current strategy, as the sum of the counterfactual values per action, weighted by the likelihood of us taking this action. We then update the cumulative counterfactual regrets by adding the node_value multiplied by the counterfactual reach probability (as we only have two players, this is just the reach probability of the opponent). Finally, we return node_value.
 

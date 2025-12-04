@@ -21,16 +21,16 @@ But opponent also appeared to have 3♠, suggesting duplicates.
 When the Card model was refactored to use enums, the backend API changed from sending:
 ```json
 {
-  "rank": "3",
-  "suit": "♣"  // Unicode symbol
+	"rank": "3",
+	"suit": "♣"  // Unicode symbol
 }
 ```
 
 To sending:
 ```json
 {
-  "rank": "3",
-  "suit": "clubs"  // Full name
+	"rank": "3",
+	"suit": "clubs"  // Full name
 }
 ```
 
@@ -39,13 +39,13 @@ However, `OpponentSeat.tsx` had a hardcoded `mapSuit()` function that only recog
 ```typescript
 // OLD CODE (BROKEN)
 function mapSuit(apiSuit: string): 'hearts' | 'diamonds' | 'clubs' | 'spades' {
-  switch (apiSuit) {
-    case '♥': return 'hearts'
-    case '♦': return 'diamonds'
-    case '♣': return 'clubs'
-    case '♠': return 'spades'
-    default: return 'spades'  // ❌ ALL CARDS DEFAULTED TO SPADES!
-  }
+	switch (apiSuit) {
+		case '♥': return 'hearts'
+		case '♦': return 'diamonds'
+		case '♣': return 'clubs'
+		case '♠': return 'spades'
+		default: return 'spades'  // ❌ ALL CARDS DEFAULTED TO SPADES!
+	}
 }
 ```
 
@@ -59,22 +59,22 @@ Updated `mapSuit()` to handle the new API format:
 
 ```typescript
 function mapSuit(apiSuit: string): 'hearts' | 'diamonds' | 'clubs' | 'spades' {
-  const normalized = apiSuit.toLowerCase()
-  
-  // Handle full suit names (new API format) ✅
-  if (normalized === 'hearts' || normalized === 'h') return 'hearts'
-  if (normalized === 'diamonds' || normalized === 'd') return 'diamonds'
-  if (normalized === 'clubs' || normalized === 'c') return 'clubs'
-  if (normalized === 'spades' || normalized === 's') return 'spades'
-  
-  // Handle unicode symbols (legacy support)
-  switch (apiSuit) {
-    case '♥': return 'hearts'
-    case '♦': return 'diamonds'
-    case '♣': return 'clubs'
-    case '♠': return 'spades'
-    default: return 'spades'
-  }
+	const normalized = apiSuit.toLowerCase()
+	
+	// Handle full suit names (new API format) ✅
+	if (normalized === 'hearts' || normalized === 'h') return 'hearts'
+	if (normalized === 'diamonds' || normalized === 'd') return 'diamonds'
+	if (normalized === 'clubs' || normalized === 'c') return 'clubs'
+	if (normalized === 'spades' || normalized === 's') return 'spades'
+	
+	// Handle unicode symbols (legacy support)
+	switch (apiSuit) {
+		case '♥': return 'hearts'
+		case '♦': return 'diamonds'
+		case '♣': return 'clubs'
+		case '♠': return 'spades'
+		default: return 'spades'
+	}
 }
 ```
 

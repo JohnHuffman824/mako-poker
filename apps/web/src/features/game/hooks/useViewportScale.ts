@@ -8,9 +8,9 @@ const DESIGN_WIDTH = 1440
 const DESIGN_HEIGHT = 900
 
 interface ViewportScale {
-  scale: number
-  width: number
-  height: number
+	scale: number
+	width: number
+	height: number
 }
 
 /**
@@ -19,35 +19,35 @@ interface ViewportScale {
  * Uses the smaller of width/height ratios to ensure nothing overflows.
  */
 export function useViewportScale(): ViewportScale {
-  const calculateScale = useCallback((): ViewportScale => {
-    const windowWidth = window.innerWidth
-    const windowHeight = window.innerHeight
+	const calculateScale = useCallback((): ViewportScale => {
+		const windowWidth = window.innerWidth
+		const windowHeight = window.innerHeight
 
-    const scaleX = windowWidth / DESIGN_WIDTH
-    const scaleY = windowHeight / DESIGN_HEIGHT
-    const scale = Math.min(scaleX, scaleY)
+		const scaleX = windowWidth / DESIGN_WIDTH
+		const scaleY = windowHeight / DESIGN_HEIGHT
+		const scale = Math.min(scaleX, scaleY)
 
-    return {
-      scale,
-      width: DESIGN_WIDTH,
-      height: DESIGN_HEIGHT,
-    }
-  }, [])
+		return {
+			scale,
+			width: DESIGN_WIDTH,
+			height: DESIGN_HEIGHT,
+		}
+	}, [])
 
-  const [viewport, setViewport] = useState<ViewportScale>(calculateScale)
+	const [viewport, setViewport] = useState<ViewportScale>(calculateScale)
 
-  useEffect(() => {
-    function handleResize() {
-      setViewport(calculateScale())
-    }
+	useEffect(() => {
+		function handleResize() {
+			setViewport(calculateScale())
+		}
 
-    window.addEventListener('resize', handleResize)
-    handleResize()
+		window.addEventListener('resize', handleResize)
+		handleResize()
 
-    return () => window.removeEventListener('resize', handleResize)
-  }, [calculateScale])
+		return () => window.removeEventListener('resize', handleResize)
+	}, [calculateScale])
 
-  return viewport
+	return viewport
 }
 
 export { DESIGN_WIDTH, DESIGN_HEIGHT }

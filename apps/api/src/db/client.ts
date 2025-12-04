@@ -9,20 +9,20 @@ import * as schema from './schema'
 const connectionString = process.env.DATABASE_URL
 
 if (!connectionString) {
-  throw new Error(
-    'DATABASE_URL environment variable is required.\n' +
-    'For local development, create a .env file with:\n' +
-    'DATABASE_URL=postgresql://mako:mako@localhost:5432/mako'
-  )
+	throw new Error(
+		'DATABASE_URL environment variable is required.\n' +
+		'For local development, create a .env file with:\n' +
+		'DATABASE_URL=postgresql://mako:mako@localhost:5432/mako'
+	)
 }
 
 /**
  * Postgres connection pool.
  */
 const client = postgres(connectionString, {
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 10
+	max: 10,
+	idle_timeout: 20,
+	connect_timeout: 10
 })
 
 /**

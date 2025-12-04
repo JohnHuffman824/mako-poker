@@ -1,16 +1,16 @@
 {
-  "name": "mako-poker",
-  "private": true,
-  "workspaces": ["apps/*", "packages/*"],
-  "scripts": {
-    "db:start": "docker-compose up -d db",
-    "db:stop": "docker-compose down",
-    "db:logs": "docker-compose logs -f db",
-    "dev": "bun run db:start && bun run --filter '*' dev",
-    "dev:web": "bun run --filter web dev",
-    "dev:api": "bun run db:start && bun run --filter api dev",
-    "test": "bun run --filter '*' test",
-    "build": "bun run --filter '*' build",
-    "typecheck": "bun run --filter '*' typecheck"
-  }
+	"name": "mako-poker",
+	"private": true,
+	"workspaces": ["apps/*", "packages/*"],
+	"scripts": {
+		"db:start": "docker-compose up -d db",
+		"db:stop": "docker-compose down",
+		"db:logs": "docker-compose logs -f db",
+		"dev": "bun run db:start && bun run --filter '*' dev",
+		"dev:web": "bun run --filter web dev",
+		"dev:api": "bun run db:start && bun run --filter api dev",
+		"test": "bun run --filter '*' test",
+		"build": "bun run --filter '*' build",
+		"typecheck": "bun run --filter '*' typecheck"
+	}
 }

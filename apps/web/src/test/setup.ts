@@ -11,9 +11,9 @@ GlobalRegistrator.register()
 
 // Add custom setup if needed
 beforeEach(() => {
-  // Setup that runs before each test
+	// Setup that runs before each test
 })
 
 afterEach(() => {
-  // Cleanup after each test
+	// Cleanup after each test
 })

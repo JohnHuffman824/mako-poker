@@ -85,67 +85,67 @@ src/
 │   ├── cfr_plus.py          # CFR+ solver (tabular) + Kuhn Poker solver
 │   └── deep_cfr.py          # Deep CFR with neural networks
 └── training/                # Training utilities
-    ├── __init__.py          # Exports: PokerValueNetwork, Trainer
-    ├── trainer.py           # High-level training orchestration
-    └── value_network.py     # PyTorch neural network for Deep CFR
+		├── __init__.py          # Exports: PokerValueNetwork, Trainer
+		├── trainer.py           # High-level training orchestration
+		└── value_network.py     # PyTorch neural network for Deep CFR
 ```
 
 ### How Files Work Together
 
 ```
-                    ┌──────────────────────────────────────────────┐
-                    │                TRAINING FLOW                  │
-                    └──────────────────────────────────────────────┘
-                                        │
-                                        ▼
-                    ┌──────────────────────────────────────────────┐
-                    │              cli.py / trainer.py              │
-                    │  Entry point: python -m src.cli train         │
-                    └──────────────────────────────────────────────┘
-                                        │
-                         ┌──────────────┴──────────────┐
-                         ▼                             ▼
-              ┌─────────────────────┐     ┌─────────────────────────┐
-              │   CFRPlusSolver     │     │      DeepCFR            │
-              │   (cfr_plus.py)     │     │   (deep_cfr.py)         │
-              │                     │     │                         │
-              │   Tabular CFR+      │     │   Neural network CFR    │
-              │   Stores all        │     │   Uses value_network.py │
-              │   strategies in     │     │   for approximation     │
-              │   memory            │     │                         │
-              └─────────────────────┘     └─────────────────────────┘
-                         │                             │
-                         └──────────────┬──────────────┘
-                                        │
-                         ┌──────────────┴──────────────┐
-                         ▼                             ▼
-              ┌─────────────────────┐     ┌─────────────────────────┐
-              │  HandBucketing      │     │   ActionAbstraction     │
-              │ (hand_bucketing.py) │     │ (action_abstraction.py) │
-              │                     │     │                         │
-              │ Groups 1326 hands   │     │ Limits bet sizes to:    │
-              │ into ~169-189       │     │ • 2.5x, 3x BB preflop   │
-              │ buckets             │     │ • 33%, 67%, pot postflop│
-              └─────────────────────┘     └─────────────────────────┘
-                         │                             │
-                         └──────────────┬──────────────┘
-                                        │
-                                        ▼
-              ┌─────────────────────────────────────────────────────┐
-              │                    GameState                        │
-              │                  (game_state.py)                    │
-              │                                                     │
-              │  • Tracks hole cards, community cards, pot, stacks  │
-              │  • apply_action() returns new immutable state       │
-              │  • get_legal_actions() for CFR traversal            │
-              │  • is_terminal / get_payoff for leaf nodes          │
-              └─────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
-              ┌─────────────────────────────────────────────────────┐
-              │        Card, Deck, Action, HandEvaluator            │
-              │           (game/*.py - core primitives)             │
-              └─────────────────────────────────────────────────────┘
+										┌──────────────────────────────────────────────┐
+										│                TRAINING FLOW                  │
+										└──────────────────────────────────────────────┘
+																				│
+																				▼
+										┌──────────────────────────────────────────────┐
+										│              cli.py / trainer.py              │
+										│  Entry point: python -m src.cli train         │
+										└──────────────────────────────────────────────┘
+																				│
+												 ┌──────────────┴──────────────┐
+												 ▼                             ▼
+							┌─────────────────────┐     ┌─────────────────────────┐
+							│   CFRPlusSolver     │     │      DeepCFR            │
+							│   (cfr_plus.py)     │     │   (deep_cfr.py)         │
+							│                     │     │                         │
+							│   Tabular CFR+      │     │   Neural network CFR    │
+							│   Stores all        │     │   Uses value_network.py │
+							│   strategies in     │     │   for approximation     │
+							│   memory            │     │                         │
+							└─────────────────────┘     └─────────────────────────┘
+												 │                             │
+												 └──────────────┬──────────────┘
+																				│
+												 ┌──────────────┴──────────────┐
+												 ▼                             ▼
+							┌─────────────────────┐     ┌─────────────────────────┐
+							│  HandBucketing      │     │   ActionAbstraction     │
+							│ (hand_bucketing.py) │     │ (action_abstraction.py) │
+							│                     │     │                         │
+							│ Groups 1326 hands   │     │ Limits bet sizes to:    │
+							│ into ~169-189       │     │ • 2.5x, 3x BB preflop   │
+							│ buckets             │     │ • 33%, 67%, pot postflop│
+							└─────────────────────┘     └─────────────────────────┘
+												 │                             │
+												 └──────────────┬──────────────┘
+																				│
+																				▼
+							┌─────────────────────────────────────────────────────┐
+							│                    GameState                        │
+							│                  (game_state.py)                    │
+							│                                                     │
+							│  • Tracks hole cards, community cards, pot, stacks  │
+							│  • apply_action() returns new immutable state       │
+							│  • get_legal_actions() for CFR traversal            │
+							│  • is_terminal / get_payoff for leaf nodes          │
+							└─────────────────────────────────────────────────────┘
+																				│
+																				▼
+							┌─────────────────────────────────────────────────────┐
+							│        Card, Deck, Action, HandEvaluator            │
+							│           (game/*.py - core primitives)             │
+							└─────────────────────────────────────────────────────┘
 ```
 
 ### Individual File Purposes
@@ -233,10 +233,10 @@ The **Kuhn Poker validation** (`test_kuhn_validation.py`) is the most important 
 
 ```python
 def test_game_value_converges_to_nash(self):
-    """Game value should converge to -1/18 ≈ -0.0556 for Player 0."""
-    expected_value = -1/18
-    actual_value = self.solver.get_game_value()
-    self.assertAlmostEqual(actual_value, expected_value, places=2)
+		"""Game value should converge to -1/18 ≈ -0.0556 for Player 0."""
+		expected_value = -1/18
+		actual_value = self.solver.get_game_value()
+		self.assertAlmostEqual(actual_value, expected_value, places=2)
 ```
 
 **Why this matters:** Kuhn Poker has a **known mathematical Nash equilibrium**. If our CFR converges to it, the algorithm is provably correct and will work for Texas Hold'em too.
@@ -256,15 +256,15 @@ def test_game_value_converges_to_nash(self):
 ### ⚠️ What's Needed Before Training
 
 1. **Install dependencies:**
-   ```bash
-   cd /Users/jackhuffman/mako-poker/solver
-   pip install -r requirements.txt
-   ```
+	 ```bash
+	 cd /Users/jackhuffman/mako-poker/solver
+	 pip install -r requirements.txt
+	 ```
 
 2. **Run Kuhn validation** (proves CFR works):
-   ```bash
-   python -m src.cli validate --iterations 100000
-   ```
+	 ```bash
+	 python -m src.cli validate --iterations 100000
+	 ```
 
 3. **Add API tests** for production readiness
 

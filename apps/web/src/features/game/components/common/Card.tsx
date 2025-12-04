@@ -1,21 +1,21 @@
 import { 
-  PlayingCard, 
-  CardBack, 
-  CardPlaceholder as NewCardPlaceholder 
+	PlayingCard, 
+	CardBack, 
+	CardPlaceholder as NewCardPlaceholder 
 } from './PlayingCard'
 import { ColorScheme } from '../../constants/cards'
 
 interface CardData {
-  rank: string
-  suit: string
+	rank: string
+	suit: string
 }
 
 interface CardProps {
-  card?: CardData | null
-  size?: 'sm' | 'md' | 'lg' | 'hero'
-  faceDown?: boolean
-  colorScheme?: ColorScheme
-  className?: string
+	card?: CardData | null
+	size?: 'sm' | 'md' | 'lg' | 'hero'
+	faceDown?: boolean
+	colorScheme?: ColorScheme
+	className?: string
 }
 
 /**
@@ -23,36 +23,36 @@ interface CardProps {
  * Supports both dual-tone and quad-tone color schemes.
  */
 export function Card({ 
-  card, 
-  size = 'sm', 
-  faceDown = false,
-  colorScheme = 'quad-tone',
-  className 
+	card, 
+	size = 'sm', 
+	faceDown = false,
+	colorScheme = 'quad-tone',
+	className 
 }: CardProps) {
-  if (faceDown || !card) {
-    return <CardBack size={size} className={className} />
-  }
+	if (faceDown || !card) {
+		return <CardBack size={size} className={className} />
+	}
 
-  return (
-    <PlayingCard
-      rank={card.rank}
-      suit={card.suit}
-      size={size}
-      colorScheme={colorScheme}
-      className={className}
-    />
-  )
+	return (
+		<PlayingCard
+			rank={card.rank}
+			suit={card.suit}
+			size={size}
+			colorScheme={colorScheme}
+			className={className}
+		/>
+	)
 }
 
 /**
  * Empty card placeholder with dashed border.
  */
 export function CardPlaceholder({ 
-  size = 'sm',
-  className 
+	size = 'sm',
+	className 
 }: { 
-  size?: 'sm' | 'md' | 'lg' | 'hero'
-  className?: string 
+	size?: 'sm' | 'md' | 'lg' | 'hero'
+	className?: string 
 }) {
-  return <NewCardPlaceholder size={size} className={className} />
+	return <NewCardPlaceholder size={size} className={className} />
 }

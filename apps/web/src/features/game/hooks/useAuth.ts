@@ -6,30 +6,30 @@ import { api } from '@/api/client'
  * Hook for authentication state and actions.
  */
 export function useAuth() {
-  const [, setLocation] = useLocation()
+	const [, setLocation] = useLocation()
 
-  const isAuthenticated = useCallback(() => {
-    return !!api.getToken()
-  }, [])
+	const isAuthenticated = useCallback(() => {
+		return !!api.getToken()
+	}, [])
 
-  const logout = useCallback(() => {
-    api.setToken(null)
-    setLocation('/login')
-  }, [setLocation])
+	const logout = useCallback(() => {
+		api.setToken(null)
+		setLocation('/login')
+	}, [setLocation])
 
-  const redirectIfUnauthenticated = useCallback(() => {
-    if (!isAuthenticated()) {
-      setLocation('/login')
-      return false
-    }
-    return true
-  }, [isAuthenticated, setLocation])
+	const redirectIfUnauthenticated = useCallback(() => {
+		if (!isAuthenticated()) {
+			setLocation('/login')
+			return false
+		}
+		return true
+	}, [isAuthenticated, setLocation])
 
-  return {
-    isAuthenticated,
-    logout,
-    redirectIfUnauthenticated,
-  }
+	return {
+		isAuthenticated,
+		logout,
+		redirectIfUnauthenticated,
+	}
 }
 
 /**
@@ -37,10 +37,10 @@ export function useAuth() {
  * Use at the top of protected pages.
  */
 export function useRequireAuth() {
-  const { redirectIfUnauthenticated } = useAuth()
+	const { redirectIfUnauthenticated } = useAuth()
 
-  useEffect(() => {
-    redirectIfUnauthenticated()
-  }, [redirectIfUnauthenticated])
+	useEffect(() => {
+		redirectIfUnauthenticated()
+	}, [redirectIfUnauthenticated])
 }
 

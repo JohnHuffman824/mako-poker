@@ -14,16 +14,16 @@ import { useGameStore } from '@/store/gameStore'
  * when needed. The actual processing logic is in gameStore.
  */
 export function useAiActionLoop() {
-  const game = useGameStore(state => state.game)
-  const processAiActions = useGameStore(state => state.processAiActions)
+	const game = useGameStore(state => state.game)
+	const processAiActions = useGameStore(state => state.processAiActions)
 
-  useEffect(() => {
-    // Only process if hand is in progress and it's not hero's turn
-    if (!game?.isHandInProgress) return
-    if (game.currentPlayerIndex == game.heroSeatIndex) return
+	useEffect(() => {
+		// Only process if hand is in progress and it's not hero's turn
+		if (!game?.isHandInProgress) return
+		if (game.currentPlayerIndex == game.heroSeatIndex) return
 
-    // Process AI actions
-    processAiActions()
-  }, [game?.isHandInProgress, game?.currentPlayerIndex, game?.heroSeatIndex, processAiActions])
+		// Process AI actions
+		processAiActions()
+	}, [game?.isHandInProgress, game?.currentPlayerIndex, game?.heroSeatIndex, processAiActions])
 }
 

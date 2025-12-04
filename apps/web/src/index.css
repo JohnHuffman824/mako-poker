@@ -7,56 +7,56 @@
  * Fallback chain provides similar rounded fonts on other platforms.
  */
 @layer base {
-  body {
-    font-family: 'SF Compact Rounded', -apple-system, BlinkMacSystemFont,
-      system-ui, 'Segoe UI Rounded', 'Helvetica Neue', sans-serif;
-  }
+	body {
+		font-family: 'SF Compact Rounded', -apple-system, BlinkMacSystemFont,
+			system-ui, 'Segoe UI Rounded', 'Helvetica Neue', sans-serif;
+	}
 }
 
 /* Smooth animations */
 @layer utilities {
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+	.animate-pulse-slow {
+		animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
 }
 
 /* Range slider styling */
 input[type='range'] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
 }
 
 input[type='range']::-webkit-slider-track {
-  background: rgba(74, 85, 101, 0.5);
-  border-radius: 10px;
-  height: 8px;
+	background: rgba(74, 85, 101, 0.5);
+	border-radius: 10px;
+	height: 8px;
 }
 
 input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-  cursor: pointer;
-  margin-top: -6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: white;
+	cursor: pointer;
+	margin-top: -6px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 input[type='range']::-moz-range-track {
-  background: rgba(74, 85, 101, 0.5);
-  border-radius: 10px;
-  height: 8px;
+	background: rgba(74, 85, 101, 0.5);
+	border-radius: 10px;
+	height: 8px;
 }
 
 input[type='range']::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: white;
+	cursor: pointer;
+	border: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
