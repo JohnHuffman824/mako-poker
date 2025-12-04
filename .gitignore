@@ -16,28 +16,14 @@ Thumbs.db
 .Trashes
 ehthumbs.db
 
-# Backend - Gradle
-backend/.gradle/
-backend/build/
-!backend/gradle/wrapper/gradle-wrapper.jar
+# Node / Bun dependencies
+node_modules/
 
-# Backend - Compiled files
-*.class
-*.jar
-*.war
-*.ear
-
-# Backend - Kotlin
-*.kotlin_module
-
-# Frontend - Node
-frontend/node_modules/
-frontend/dist/
-frontend/.cache/
-frontend/coverage/
-
-# Frontend - Build
-frontend/build/
+# Frontend - Build (apps/web)
+apps/web/dist/
+apps/web/.cache/
+apps/web/coverage/
+apps/web/build/
 
 # Environment files
 .env
@@ -61,6 +47,7 @@ coverage/
 *.tmp
 *.temp
 *~
+
 
 # Research
 # research/

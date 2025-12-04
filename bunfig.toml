@@ -1,0 +1,7 @@
+# Bun configuration for mako-poker monorepo
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use exact versions from lockfile
+frozen = false
+

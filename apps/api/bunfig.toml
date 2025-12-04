@@ -1,0 +1,5 @@
+# Bun configuration for API server
+
+[test]
+preload = ["./src/test/setup.ts"]
+
