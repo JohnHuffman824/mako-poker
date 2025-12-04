@@ -31,168 +31,168 @@ from ..abstraction.action_abstraction import ActionAbstraction
 
 
 class SolverService:
-    """Manages CFR solver instance and provides solving functionality."""
+	"""Manages CFR solver instance and provides solving functionality."""
 
-    def __init__(self):
-        self.solver: Optional[CFRPlusSolver] = None
-        self.hand_bucketing: Optional[HandBucketing] = None
-        self.action_abstraction: Optional[ActionAbstraction] = None
-        self._iterations = 0
+	def __init__(self):
+		self.solver: Optional[CFRPlusSolver] = None
+		self.hand_bucketing: Optional[HandBucketing] = None
+		self.action_abstraction: Optional[ActionAbstraction] = None
+		self._iterations = 0
 
-    def initialize(
-        self,
-        preflop_buckets: int = 169,
-        postflop_buckets: int = 20
-    ) -> None:
-        """Initialize solver with abstractions."""
-        self.hand_bucketing = HandBucketing(
-                preflop_buckets=preflop_buckets,
-                postflop_buckets=postflop_buckets
-        )
-        self.action_abstraction = ActionAbstraction()
-        self.solver = CFRPlusSolver(
-                hand_bucketing=self.hand_bucketing,
-                action_abstraction=self.action_abstraction
-        )
+	def initialize(
+		self,
+		preflop_buckets: int = 169,
+		postflop_buckets: int = 20
+	) -> None:
+		"""Initialize solver with abstractions."""
+		self.hand_bucketing = HandBucketing(
+			preflop_buckets=preflop_buckets,
+			postflop_buckets=postflop_buckets
+		)
+		self.action_abstraction = ActionAbstraction()
+		self.solver = CFRPlusSolver(
+			hand_bucketing=self.hand_bucketing,
+			action_abstraction=self.action_abstraction
+		)
 
-    def is_loaded(self) -> bool:
-        """Check if solver is initialized."""
-        return self.solver is not None
+	def is_loaded(self) -> bool:
+		"""Check if solver is initialized."""
+		return self.solver is not None
 
-    def solve(self, request: SolveRequest) -> SolveResponse:
-            """Solve a poker scenario and return GTO strategy."""
-            if not self.is_loaded():
-                    raise RuntimeError('Solver not initialized')
+	def solve(self, request: SolveRequest) -> SolveResponse:
+		"""Solve a poker scenario and return GTO strategy."""
+		if not self.is_loaded():
+			raise RuntimeError('Solver not initialized')
 
-            start_time = time.perf_counter()
+		start_time = time.perf_counter()
 
-            # Get Card objects directly from request
-            hole_cards = request.get_hole_cards()
-            community_cards = request.get_community_cards()
+		# Get Card objects directly from request
+		hole_cards = request.get_hole_cards()
+		community_cards = request.get_community_cards()
 
-            # Determine street
-            street = self._determine_street(len(community_cards))
+		# Determine street
+		street = self._determine_street(len(community_cards))
 
-            # Get hand bucket
-            board = community_cards if community_cards else None
-            hand_bucket = self.hand_bucketing.get_bucket(hole_cards, board)
+		# Get hand bucket
+		board = community_cards if community_cards else None
+		hand_bucket = self.hand_bucketing.get_bucket(hole_cards, board)
 
-            # Build game state for action abstraction
-            game_state = self._build_game_state(
-                    hole_cards=hole_cards,
-                    community_cards=community_cards,
-                    pot=request.pot,
-                    stack=request.stack,
-                    opponent_stack=request.opponent_stack,
-                    to_call=request.to_call,
-                    big_blind=request.big_blind,
-                    street=street
-            )
+		# Build game state for action abstraction
+		game_state = self._build_game_state(
+			hole_cards=hole_cards,
+			community_cards=community_cards,
+			pot=request.pot,
+			stack=request.stack,
+			opponent_stack=request.opponent_stack,
+			to_call=request.to_call,
+			big_blind=request.big_blind,
+			street=street
+		)
 
-            # Get abstract actions
-            actions = self.action_abstraction.get_abstract_actions(game_state)
+		# Get abstract actions
+		actions = self.action_abstraction.get_abstract_actions(game_state)
 
-            # Build information set key and get strategy
-            infoset_key = self._build_infoset_key(hand_bucket, street, game_state)
-            strategy = self.solver.get_strategy(infoset_key)
+		# Build information set key and get strategy
+		infoset_key = self._build_infoset_key(hand_bucket, street, game_state)
+		strategy = self.solver.get_strategy(infoset_key)
 
-            # Convert to response format
-            strategy_actions = self._build_strategy_actions(actions, strategy)
+		# Convert to response format
+		strategy_actions = self._build_strategy_actions(actions, strategy)
 
-            # Find recommended action
-            recommended = max(strategy_actions, key=lambda x: x.probability)
+		# Find recommended action
+		recommended = max(strategy_actions, key=lambda x: x.probability)
 
-            # Map internal Street to API StreetEnum
-            street_enum = StreetEnum(street.name)
+		# Map internal Street to API StreetEnum
+		street_enum = StreetEnum(street.name)
 
-            solve_time = (time.perf_counter() - start_time) * 1000
+		solve_time = (time.perf_counter() - start_time) * 1000
 
-            return SolveResponse(
-                    strategy=strategy_actions,
-                    recommended_action=recommended.action,
-                    recommended_amount=recommended.amount,
-                    confidence=recommended.probability,
-                    hand_bucket=hand_bucket,
-                    street=street_enum,
-                    solve_time_ms=round(solve_time, 2)
-            )
+		return SolveResponse(
+			strategy=strategy_actions,
+			recommended_action=recommended.action,
+			recommended_amount=recommended.amount,
+			confidence=recommended.probability,
+			hand_bucket=hand_bucket,
+			street=street_enum,
+			solve_time_ms=round(solve_time, 2)
+		)
 
-    def _determine_street(self, num_community_cards: int) -> Street:
-            """Determine betting street from community card count."""
-            if num_community_cards == 0:
-                    return Street.PREFLOP
-            elif num_community_cards == 3:
-                    return Street.FLOP
-            elif num_community_cards == 4:
-                    return Street.TURN
-            else:
-                    return Street.RIVER
+	def _determine_street(self, num_community_cards: int) -> Street:
+		"""Determine betting street from community card count."""
+		if num_community_cards == 0:
+			return Street.PREFLOP
+		elif num_community_cards == 3:
+			return Street.FLOP
+		elif num_community_cards == 4:
+			return Street.TURN
+		else:
+			return Street.RIVER
 
-    def _build_game_state(
-            self,
-            hole_cards: list[Card],
-            community_cards: list[Card],
-            pot: int,
-            stack: int,
-            opponent_stack: int,
-            to_call: int,
-            big_blind: int,
-            street: Street
-    ) -> GameState:
-            """Build a GameState object for action abstraction."""
-            # Placeholder opponent cards (we don't know them)
-            opponent_hole = [
-                    Card(Rank.TWO, Suit.CLUBS),
-                    Card(Rank.THREE, Suit.CLUBS)
-            ]
+	def _build_game_state(
+		self,
+		hole_cards: list[Card],
+		community_cards: list[Card],
+		pot: int,
+		stack: int,
+		opponent_stack: int,
+		to_call: int,
+		big_blind: int,
+		street: Street
+	) -> GameState:
+		"""Build a GameState object for action abstraction."""
+		# Placeholder opponent cards (we don't know them)
+		opponent_hole = [
+			Card(Rank.TWO, Suit.CLUBS),
+			Card(Rank.THREE, Suit.CLUBS)
+		]
 
-            return GameState(
-                    hole_cards=(hole_cards, opponent_hole),
-                    community_cards=community_cards,
-                    pot=pot,
-                    stacks=[stack, opponent_stack],
-                    current_player=0,
-                    street=street,
-                    action_history=[],
-                    bets_this_round=[0, to_call],
-                    is_terminal=False,
-                    winner=-1,
-                    big_blind=big_blind,
-                    facing_bet=to_call > 0
-            )
+		return GameState(
+			hole_cards=(hole_cards, opponent_hole),
+			community_cards=community_cards,
+			pot=pot,
+			stacks=[stack, opponent_stack],
+			current_player=0,
+			street=street,
+			action_history=[],
+			bets_this_round=[0, to_call],
+			is_terminal=False,
+			winner=-1,
+			big_blind=big_blind,
+			facing_bet=to_call > 0
+		)
 
-    def _build_infoset_key(
-            self,
-            hand_bucket: int,
-            street: Street,
-            game_state: GameState
-    ) -> str:
-            """Build information set key for strategy lookup."""
-            history = game_state.encode_history()
-            return f'{hand_bucket}:{street.name}:{history}'
+	def _build_infoset_key(
+		self,
+		hand_bucket: int,
+		street: Street,
+		game_state: GameState
+	) -> str:
+		"""Build information set key for strategy lookup."""
+		history = game_state.encode_history()
+		return f'{hand_bucket}:{street.name}:{history}'
 
-    def _build_strategy_actions(
-            self,
-            actions: list[Action],
-            strategy: Optional[list[float]]
-    ) -> list[StrategyAction]:
-            """Convert actions and strategy to StrategyAction list."""
-            if strategy is None:
-                    uniform_prob = 1.0 / len(actions) if actions else 0.0
-                    strategy = [uniform_prob] * len(actions)
+	def _build_strategy_actions(
+		self,
+		actions: list[Action],
+		strategy: Optional[list[float]]
+	) -> list[StrategyAction]:
+		"""Convert actions and strategy to StrategyAction list."""
+		if strategy is None:
+			uniform_prob = 1.0 / len(actions) if actions else 0.0
+			strategy = [uniform_prob] * len(actions)
 
-            result = []
-            for i, action in enumerate(actions):
-                    prob = strategy[i] if i < len(strategy) else 0.0
-                    action_enum = ActionTypeEnum(action.type.value)
-                    result.append(StrategyAction(
-                            action=action_enum,
-                            amount=action.amount,
-                            probability=round(prob, 4),
-                            ev=None
-                    ))
+		result = []
+		for i, action in enumerate(actions):
+			prob = strategy[i] if i < len(strategy) else 0.0
+			action_enum = ActionTypeEnum(action.type.value)
+			result.append(StrategyAction(
+				action=action_enum,
+				amount=action.amount,
+				probability=round(prob, 4),
+				ev=None
+			))
 
-            return result
+		return result
 
 
 # Global solver service instance
