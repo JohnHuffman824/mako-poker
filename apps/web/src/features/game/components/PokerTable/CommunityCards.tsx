@@ -1,10 +1,4 @@
-import { PlayingCard } from '../common'
-
-interface CardData {
-	rank: string
-	suit: string
-	display: string
-}
+import { PlayingCard, CardData } from '../common'
 
 interface CommunityCardsProps {
 	cards: CardData[]

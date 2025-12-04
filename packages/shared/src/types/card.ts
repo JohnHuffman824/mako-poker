@@ -1,8 +1,9 @@
 /**
  * Card rank string literals.
+ * All ranks use single-character representation: 2-9, T (ten), J, Q, K, A.
  */
 export type Rank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
-	'10' | 'J' | 'Q' | 'K' | 'A'
+	'T' | 'J' | 'Q' | 'K' | 'A'
 
 /**
  * Card suit string literals.
@@ -15,58 +16,37 @@ export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades'
 export interface Card {
 	rank: Rank
 	suit: Suit
-	display: string
 }
 
 /**
- * Rank data: numeric value for comparison, symbol for notation.
+ * Rank numeric values for comparison (2-14).
  */
-const RANK_DATA: Record<Rank, { value: number; symbol: string }> = {
-	'2': { value: 2, symbol: '2' },
-	'3': { value: 3, symbol: '3' },
-	'4': { value: 4, symbol: '4' },
-	'5': { value: 5, symbol: '5' },
-	'6': { value: 6, symbol: '6' },
-	'7': { value: 7, symbol: '7' },
-	'8': { value: 8, symbol: '8' },
-	'9': { value: 9, symbol: '9' },
-	'10': { value: 10, symbol: 'T' },
-	'J': { value: 11, symbol: 'J' },
-	'Q': { value: 12, symbol: 'Q' },
-	'K': { value: 13, symbol: 'K' },
-	'A': { value: 14, symbol: 'A' }
-}
-
-/**
- * Suit data: symbol for notation.
- */
-const SUIT_DATA: Record<Suit, { symbol: string }> = {
-	hearts: { symbol: 'h' },
-	diamonds: { symbol: 'd' },
-	clubs: { symbol: 'c' },
-	spades: { symbol: 's' }
+const RANK_VALUES: Record<Rank, number> = {
+	'2': 2,
+	'3': 3,
+	'4': 4,
+	'5': 5,
+	'6': 6,
+	'7': 7,
+	'8': 8,
+	'9': 9,
+	'T': 10,
+	'J': 11,
+	'Q': 12,
+	'K': 13,
+	'A': 14
 }
 
 /**
  * Gets the numeric value of a rank (2-14).
  */
-export const rankValue = (rank: Rank): number => RANK_DATA[rank].value
-
-/**
- * Gets the notation symbol for a rank (2-9, T, J, Q, K, A).
- */
-export const rankSymbol = (rank: Rank): string => RANK_DATA[rank].symbol
-
-/**
- * Gets the notation symbol for a suit (h, d, c, s).
- */
-export const suitSymbol = (suit: Suit): string => SUIT_DATA[suit].symbol
+export const rankValue = (rank: Rank): number => RANK_VALUES[rank]
 
 /**
  * All ranks in order from low to high.
  */
 export const ALL_RANKS: Rank[] = [
-	'2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'
+	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
 ]
 
 /**
@@ -75,31 +55,39 @@ export const ALL_RANKS: Rank[] = [
 export const ALL_SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades']
 
 /**
- * Creates a display string for a card.
+ * Creates a card from rank and suit.
  */
-export function formatCardDisplay(rank: Rank, suit: Suit): string {
-	return `${rank}${suitSymbol(suit)}`
+export function createCard(rank: Rank, suit: Suit): Card {
+	return { rank, suit }
 }
 
 /**
- * Parses a rank from its symbol (handles T for 10).
+ * Creates a standard 52-card deck (unshuffled).
  */
-export function rankFromSymbol(symbol: string): Rank {
-	const upper = symbol.toUpperCase()
-	if (upper === 'T') return '10'
-	const rank = ALL_RANKS.find(r => r === upper || r === symbol)
-	if (!rank) throw new Error(`Invalid rank symbol: ${symbol}`)
-	return rank
+export function createDeck(): Card[] {
+	const deck: Card[] = []
+	for (const suit of ALL_SUITS) {
+		for (const rank of ALL_RANKS) {
+			deck.push(createCard(rank, suit))
+		}
+	}
+	return deck
 }
 
 /**
- * Parses a suit from its symbol (h, d, c, s).
+ * Shuffles a deck in place using Fisher-Yates algorithm.
  */
-export function suitFromSymbol(symbol: string): Suit {
-	const lower = symbol.toLowerCase()
-	const entry = Object.entries(SUIT_DATA).find(([, data]) =>
-		data.symbol === lower
-	)
-	if (!entry) throw new Error(`Invalid suit symbol: ${symbol}`)
-	return entry[0] as Suit
+export function shuffleDeck(deck: Card[]): Card[] {
+	for (let i = deck.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[deck[i], deck[j]] = [deck[j], deck[i]]
+	}
+	return deck
+}
+
+/**
+ * Creates a fresh shuffled deck.
+ */
+export function createShuffledDeck(): Card[] {
+	return shuffleDeck(createDeck())
 }

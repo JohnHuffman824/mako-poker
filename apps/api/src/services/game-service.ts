@@ -8,14 +8,14 @@ import {
 	STREET_FLOP,
 	STREET_TURN,
 	STREET_RIVER,
-	STREET_SHOWDOWN
+	STREET_SHOWDOWN,
+	createShuffledDeck
 } from '@mako/shared'
 import {
 	createInternalGameState,
 	toGameStateDto,
 	type InternalGameState
 } from '../domain/game-state'
-import { createShuffledDeck } from '../domain/card'
 import { resetPlayer, createPlayer } from '../domain/player'
 import {
 	assignPositions,

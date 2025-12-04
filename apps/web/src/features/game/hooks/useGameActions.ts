@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useGameStore } from '@/store/gameStore'
+import type { ActionType } from '@mako/shared'
 
 /**
  * Hook for game action handlers.
@@ -24,7 +25,7 @@ export function useGameActions() {
 	}, [dealHand])
 
 	const handleAction = useCallback(async (
-		action: string,
+		action: ActionType,
 		amount?: number
 	) => {
 		await submitAction(action, amount)

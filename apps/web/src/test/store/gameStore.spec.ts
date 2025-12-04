@@ -103,7 +103,7 @@ describe('Game Store', () => {
 				dealerSeatIndex: 5,
 				currentPlayerIndex: 0,
 				pot: 1.5,
-				street: 'preflop',
+				street: 'preflop' as const,
 				communityCards: [],
 				isHandInProgress: true,
 				blinds: { small: 0.5, big: 1.0 },

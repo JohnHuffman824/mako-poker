@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api, GameStateResponse } from '@/api/client'
+import type { ActionType } from '@mako/shared'
 
 /**
  * Game store state interface.
@@ -12,7 +13,7 @@ interface GameStore {
 
 	startGame: (playerCount: number) => Promise<void>
 	dealHand: () => Promise<void>
-	submitAction: (action: string, amount?: number) => Promise<void>
+	submitAction: (action: ActionType, amount?: number) => Promise<void>
 	processAiActions: () => Promise<void>
 	setAutoDeal: (enabled: boolean) => void
 	updatePlayerCount: (count: number) => Promise<void>
@@ -80,7 +81,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	/**
 	 * Submits a player action.
 	 */
-	submitAction: async (action: string, amount?: number) => {
+	submitAction: async (action: ActionType, amount?: number) => {
 		const { game } = get()
 		if (!game) return
 

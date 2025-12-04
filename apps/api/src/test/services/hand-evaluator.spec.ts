@@ -13,7 +13,7 @@ describe('HandEvaluator', () => {
 			const communityCards = [
 				createTestCard('Q', 'spades'),
 				createTestCard('J', 'spades'),
-				createTestCard('10', 'spades')
+				createTestCard('T', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -88,7 +88,7 @@ describe('HandEvaluator', () => {
 
 		it('identifies a straight', () => {
 			const holeCards = [
-				createTestCard('10', 'spades'),
+				createTestCard('T', 'spades'),
 				createTestCard('9', 'hearts')
 			]
 			const communityCards = [
@@ -209,7 +209,7 @@ describe('HandEvaluator', () => {
 				[
 					createTestCard('Q', 'spades'),
 					createTestCard('J', 'spades'),
-					createTestCard('10', 'spades')
+					createTestCard('T', 'spades')
 				]
 			)
 

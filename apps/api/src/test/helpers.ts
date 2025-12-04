@@ -1,5 +1,5 @@
 import type { GameState, Player, Card, Rank, Suit } from '@mako/shared'
-import { STREET_PREFLOP, formatCardDisplay, suitFromSymbol } from '@mako/shared'
+import { STREET_PREFLOP } from '@mako/shared'
 import type { InternalGameState } from '../domain/game-state'
 
 /**
@@ -66,14 +66,12 @@ export function createTestPlayer(
 }
 
 /**
- * Creates a test card. Accepts rank literal and suit (full name or symbol).
+ * Creates a test card.
  */
-export function createTestCard(rank: Rank, suit: Suit | string): Card {
-	const resolvedSuit = suit.length === 1 ? suitFromSymbol(suit) : suit as Suit
+export function createTestCard(rank: Rank, suit: Suit): Card {
 	return {
 		rank,
-		suit: resolvedSuit,
-		display: formatCardDisplay(rank, resolvedSuit)
+		suit
 	}
 }
 
@@ -86,7 +84,7 @@ export function createTestDeck(): Card[] {
 		createTestCard('K', 'spades'),
 		createTestCard('Q', 'spades'),
 		createTestCard('J', 'spades'),
-		createTestCard('10', 'spades'),
+		createTestCard('T', 'spades'),
 		createTestCard('9', 'spades'),
 		createTestCard('8', 'spades'),
 		createTestCard('7', 'spades'),

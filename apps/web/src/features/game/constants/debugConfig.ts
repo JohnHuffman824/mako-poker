@@ -31,11 +31,11 @@ export const DEBUG_SHOW_ALL_ELEMENTS = false
 export const DEBUG_DATA = {
 	// Sample community cards (all 5)
 	communityCards: [
-		{ rank: 'A' as any, suit: 'spades' as any, display: 'A♠' },
-		{ rank: 'K' as any, suit: 'hearts' as any, display: 'K♥' },
-		{ rank: 'Q' as any, suit: 'diamonds' as any, display: 'Q♦' },
-		{ rank: 'J' as any, suit: 'clubs' as any, display: 'J♣' },
-		{ rank: 'T' as any, suit: 'spades' as any, display: '10♠' },
+		{ rank: 'A' as any, suit: 'spades' as any },
+		{ rank: 'K' as any, suit: 'hearts' as any },
+		{ rank: 'Q' as any, suit: 'diamonds' as any },
+		{ rank: 'J' as any, suit: 'clubs' as any },
+		{ rank: 'T' as any, suit: 'spades' as any },
 	],
 	
 	// Sample pot size

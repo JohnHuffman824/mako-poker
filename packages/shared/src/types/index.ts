@@ -2,13 +2,12 @@
 export type { Card, Rank, Suit } from './card'
 export {
 	rankValue,
-	rankSymbol,
-	suitSymbol,
 	ALL_RANKS,
 	ALL_SUITS,
-	formatCardDisplay,
-	rankFromSymbol,
-	suitFromSymbol
+	createCard,
+	createDeck,
+	shuffleDeck,
+	createShuffledDeck
 } from './card'
 
 // Player types

@@ -1,11 +1,6 @@
 import { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
-import { Card, CardPlaceholder, StatsBubble, BetChip } from '../common'
-
-interface CardData {
-	rank: string
-	suit: string
-}
+import { Card, CardPlaceholder, StatsBubble, BetChip, CardData } from '../common'
 
 interface HeroSeatProps {
 	position: string

@@ -119,7 +119,7 @@ describe('Position Utilities', () => {
 		})
 
 		it('all seat positions have valid coordinates', () => {
-			ALL_SEAT_POSITIONS.forEach((pos, index) => {
+			ALL_SEAT_POSITIONS.forEach((pos) => {
 				expect(pos.top).toBeGreaterThan(0)
 				expect(pos.left).toBeGreaterThan(0)
 				expect(pos.top).toBeLessThan(1000)

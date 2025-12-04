@@ -1,6 +1,5 @@
 import type { GameState, Player, Card } from '@mako/shared'
-import { STREET_PREFLOP } from '@mako/shared'
-import { createShuffledDeck } from './card'
+import { STREET_PREFLOP, createShuffledDeck } from '@mako/shared'
 import { createPlayer } from './player'
 import { buildActionOrderSeats } from '../services/position-service'
 

@@ -1,13 +1,13 @@
-import { 
-	PlayingCard, 
-	CardBack, 
-	CardPlaceholder as NewCardPlaceholder 
+import {
+	PlayingCard,
+	CardBack,
+	CardPlaceholder as NewCardPlaceholder
 } from './PlayingCard'
-import { ColorScheme } from '../../constants/cards'
+import { ColorScheme, Rank, Suit } from '../../constants/cards'
 
-interface CardData {
-	rank: string
-	suit: string
+export interface CardData {
+	rank: Rank
+	suit: Suit
 }
 
 interface CardProps {

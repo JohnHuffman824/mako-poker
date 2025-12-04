@@ -1,4 +1,4 @@
-export { Card, CardPlaceholder } from './Card'
+export { Card, CardPlaceholder, type CardData } from './Card'
 export { PlayingCard, CardBack } from './PlayingCard'
 export { PotDisplay } from './PotDisplay'
 export { DealerButton, ButtonMarker } from './DealerButton'

@@ -135,6 +135,13 @@ Contains types and constants used by both frontend and backend:
 
 **Key Type:** `GameState` is the central data structure representing the full poker game state, including players, pots, community cards, betting rounds, etc.
 
+**Card Rank Convention:**
+- All card ranks use **single-character representation**: `'2'`, `'3'`, `'4'`, `'5'`, `'6'`, `'7'`, `'8'`, `'9'`, `'T'`, `'J'`, `'Q'`, `'K'`, `'A'`
+- Ten is represented as `'T'`, NOT `'10'`
+- This ensures consistent single-character ranks across the entire codebase
+- The `rankFromSymbol()` function accepts both `'T'` and `'10'` for backwards compatibility, but always returns `'T'`
+- See `packages/shared/src/types/card.ts` for the canonical Rank type definition
+
 ### Python Solver (solver/)
 
 **Purpose:** Provides GTO solving via CFR (Counterfactual Regret Minimization) algorithms.
@@ -222,3 +229,4 @@ NODE_ENV=development                # Optional
 3. **Position Logic**: Positions recalculate every hand based on dealer button rotation
 4. **Betting Round Completion**: Use `isBettingRoundComplete()` to check if street should advance
 5. **Player Indices**: Convert between `seatIndex` and `playerIndex` using position service helpers
+6. **Card Ranks**: Always use `'T'` for ten, never `'10'` - all ranks must be single characters
