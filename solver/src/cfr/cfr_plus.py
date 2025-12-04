@@ -11,7 +11,8 @@ import numpy as np
 from tqdm import tqdm
 
 from .information_set import InformationSet, InformationSetManager
-from ..game.card import Card, Rank, Suit
+from ..enums import Rank, Suit
+from ..game.card import Card
 from ..game.deck import Deck
 from ..game.game_state import GameState, Street
 from ..game.action import Action

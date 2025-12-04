@@ -1,116 +1,222 @@
-# Poker GTO Assistant
+# Mako Poker
 
-A Game Theory Optimal poker advisor with a modern tech stack.
+A GTO (Game Theory Optimal) poker training application with a Bun/TypeScript backend, React frontend, and Python CFR solver.
 
 ## Architecture
 
 ```
-poker-gto/
-├── backend/          # Kotlin + Spring Boot API
-│   ├── src/main/kotlin/com/pokergto/
-│   │   ├── controller/  # REST endpoints
-│   │   ├── service/     # Business logic
-│   │   ├── repository/  # Data access
-│   │   ├── model/       # Domain entities
-│   │   ├── dto/         # Data transfer objects
-│   │   └── security/    # JWT authentication
-│   └── src/main/resources/
-│       ├── application.yml
-│       └── db/migration/ # Flyway migrations
-├── frontend/         # React + Vite + TypeScript
-│   └── src/
-│       ├── api/         # API client
-│       ├── components/  # React components
-│       └── App.tsx      # Main app
-└── docker-compose.yml
+mako-poker/
+├── apps/
+│   ├── web/                    # React frontend (Vite + Tailwind)
+│   └── api/                    # Elysia backend (Bun)
+├── packages/
+│   └── shared/                 # Shared types and utilities
+├── solver/                     # Python CFR solver (FastAPI)
+├── docker-compose.yml          # PostgreSQL database
+├── package.json                # Bun workspace root
+└── tsconfig.json               # Base TypeScript config
 ```
 
-## Tech Stack
+## Prerequisites
 
-- **Frontend**: React 18, Vite 4, TypeScript, Tailwind CSS
-- **Backend**: Kotlin, Spring Boot 3.2, Spring Security, Spring Data JPA
-- **Database**: PostgreSQL 16
-- **Auth**: JWT tokens (access + refresh)
+- [Bun](https://bun.sh/) >= 1.0.0
+- [Docker](https://docker.com/) (for PostgreSQL)
+- [Python](https://python.org/) >= 3.11 (for solver)
 
 ## Quick Start
 
-### 1. Start PostgreSQL
+### 1. Install Bun (if not already installed)
 
 ```bash
-# Using Homebrew (Mac)
-brew services start postgresql@16
-export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-createdb pokergto  # First time only
+curl -fsSL https://bun.sh/install | bash
 ```
 
-### 2. Start Backend (Terminal 1)
+### 2. Install Dependencies
 
 ```bash
-cd backend
-./gradlew bootRun
+bun install
 ```
 
-Backend starts at: http://localhost:8080/api
-API Docs: http://localhost:8080/api/swagger-ui.html
-
-### 3. Start Frontend (Terminal 2)
+### 3. Set Up Database
 
 ```bash
-cd frontend
-npm install  # First time only
-npm run dev
+# Start PostgreSQL in Docker
+bun run db:start
+
+# Push schema to database
+cd apps/api && bun run db:push
 ```
 
-Frontend starts at: http://localhost:3000
+### 4. Configure Environment
 
-## API Endpoints
+Create `apps/api/.env`:
 
-### Health
-- `GET /api/health` - Health check
-
-### Authentication
-- `POST /api/auth/register` - Create account
-- `POST /api/auth/login` - Get JWT tokens
-- `POST /api/auth/refresh` - Refresh token
-
-### Sessions
-- `GET /api/sessions` - List sessions
-- `GET /api/sessions/current` - Get active session
-- `POST /api/sessions` - Create session
-
-### Analysis
-- `POST /api/analyze/quick` - Quick GTO analysis
-
-## Database
-
-### View in Postico 2
-- Host: `localhost`
-- Port: `5432`
-- User: `jackhuffman`
-- Database: `pokergto`
-- Password: (empty)
-
-### Command Line
 ```bash
-export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-psql -d pokergto
-\dt   # List tables
-\q    # Quit
+DATABASE_URL=postgresql://mako:mako@localhost:5432/mako
+JWT_SECRET=your-secret-key-change-in-production
+```
+
+### 5. Start Development Servers
+
+```bash
+# Start all services (frontend + API)
+bun run dev
+
+# Or start individually:
+bun run dev:web   # Frontend only (http://localhost:5173)
+bun run dev:api   # API only (http://localhost:8080)
 ```
 
 ## Development
 
-### Backend
+### Running Tests
+
 ```bash
-cd backend
-./gradlew bootRun                    # Start server
-./gradlew test                       # Run tests
-./gradlew build                      # Build JAR
+# Run all tests
+bun run test
+
+# Run frontend tests
+cd apps/web && bun test
+
+# Run API tests
+cd apps/api && bun test
+
+# Watch mode
+bun test --watch
 ```
 
-### Frontend
+### Type Checking
+
 ```bash
-cd frontend
-npm run dev      # Development server
-npm run build    # Production build
+bun run typecheck
 ```
+
+### Database Commands
+
+```bash
+# Start PostgreSQL
+bun run db:start
+
+# Stop PostgreSQL
+bun run db:stop
+
+# View database logs
+bun run db:logs
+
+# Push schema changes
+cd apps/api && bun run db:push
+
+# Generate migrations
+cd apps/api && bun run db:generate
+
+# Open Drizzle Studio (GUI)
+cd apps/api && bun run db:studio
+```
+
+## Project Structure
+
+### apps/web (Frontend)
+
+React application with:
+- Vite for development and builds
+- Tailwind CSS for styling
+- Zustand for state management
+- React Query for API calls
+
+### apps/api (Backend)
+
+Elysia server with:
+- JWT authentication
+- PostgreSQL with Drizzle ORM
+- RESTful API
+
+### packages/shared
+
+Shared TypeScript types and utilities:
+- Game state types (`GameState`, `Player`, `Card`)
+- Card utilities (`rankValue()`, `suitSymbol()`, `formatCardDisplay()`)
+- Action constants (`ACTION_FOLD`, `ACTION_CALL`, etc.)
+
+### solver
+
+Python CFR solver:
+- Deep CFR implementation
+- FastAPI for HTTP interface
+- PyTorch for neural networks
+
+## API Endpoints
+
+### Authentication
+
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - Login and get JWT
+- `GET /auth/me` - Get current user
+
+### Game
+
+- `POST /game/start` - Start new game
+- `GET /game/current` - Get current game
+- `POST /game/:id/deal` - Deal new hand
+- `POST /game/:id/action` - Submit player action
+- `POST /game/:id/ai-action` - Process AI action
+
+### Health
+
+- `GET /health` - Health check
+
+## Environment Variables
+
+### Required (apps/api/.env)
+
+```bash
+DATABASE_URL=postgresql://user:password@host:port/database
+JWT_SECRET=your-secret-key
+```
+
+### Optional
+
+```bash
+PORT=8080                           # API server port
+CORS_ORIGIN=http://localhost:5173   # Allowed CORS origin
+NODE_ENV=development                # Environment mode
+```
+
+## Production Deployment
+
+### Environment Setup
+
+```bash
+# Production environment variables
+DATABASE_URL=postgresql://user:password@production-host:5432/mako
+JWT_SECRET=$(openssl rand -base64 32)
+NODE_ENV=production
+CORS_ORIGIN=https://your-domain.com
+```
+
+### Build
+
+```bash
+# Build frontend
+cd apps/web && bun run build
+
+# Frontend output: apps/web/dist
+# Serve with nginx or similar
+```
+
+### Run API
+
+```bash
+cd apps/api && bun run start
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `bun run test`
+5. Submit a pull request
+
+## License
+
+MIT

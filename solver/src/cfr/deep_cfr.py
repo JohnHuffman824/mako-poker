@@ -12,7 +12,8 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 
-from ..game.card import Card, Rank, Suit
+from ..enums import Rank, Suit
+from ..game.card import Card
 from ..game.deck import Deck
 from ..game.game_state import GameState, Street
 from ..game.action import Action

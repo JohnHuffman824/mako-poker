@@ -8,7 +8,8 @@ while preserving strategic depth.
 from typing import Optional
 import numpy as np
 
-from ..game.card import Card, Rank, Suit
+from ..enums import Rank, Suit
+from ..game.card import Card
 from ..game.hand_evaluator import HandEvaluator
 
 

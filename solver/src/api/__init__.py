@@ -4,18 +4,19 @@ from .models import (
     SolveResponse,
     StrategyAction,
     HealthResponse,
-    CardModel,
 )
 
 # Re-export enums for convenience
 from ..enums import (
-    RankEnum,
-    SuitEnum,
     ActionTypeEnum,
     PositionEnum,
     StreetEnum,
     HealthStatusEnum,
 )
+
+# Re-export Card types from game module
+from ..enums import Rank, Suit
+from ..game.card import Card
 
 __all__ = [
     'app',
@@ -24,11 +25,11 @@ __all__ = [
     'SolveResponse',
     'StrategyAction',
     'HealthResponse',
-    'CardModel',
-    'RankEnum',
-    'SuitEnum',
     'ActionTypeEnum',
     'PositionEnum',
     'StreetEnum',
     'HealthStatusEnum',
+    'Card',
+    'Rank',
+    'Suit',
 ]

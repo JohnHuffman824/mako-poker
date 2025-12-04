@@ -21,18 +21,17 @@ from .models import (
     HealthResponse,
 )
 from ..enums import ActionTypeEnum, StreetEnum, HealthStatusEnum
+from ..enums import Rank, Suit
 from ..game.card import Card
 from ..game.game_state import GameState, Street
-from ..game.action import Action, ActionType
+from ..game.action import Action
 from ..cfr.cfr_plus import CFRPlusSolver
 from ..abstraction.hand_bucketing import HandBucketing
 from ..abstraction.action_abstraction import ActionAbstraction
 
 
 class SolverService:
-    """
-    Manages CFR solver instance and provides solving functionality.
-    """
+    """Manages CFR solver instance and provides solving functionality."""
 
     def __init__(self):
         self.solver: Optional[CFRPlusSolver] = None
@@ -61,21 +60,15 @@ class SolverService:
         return self.solver is not None
 
     def solve(self, request: SolveRequest) -> SolveResponse:
-        """
-        Solve a poker scenario and return GTO strategy.
-        """
+        """Solve a poker scenario and return GTO strategy."""
         if not self.is_loaded():
             raise RuntimeError('Solver not initialized')
 
         start_time = time.perf_counter()
 
-        # Convert CardModel to internal Card representation
-        hole_cards = [
-            Card.from_notation(c.notation) for c in request.hole_cards
-        ]
-        community_cards = [
-            Card.from_notation(c.notation) for c in request.community_cards
-        ]
+        # Get Card objects directly from request
+        hole_cards = request.get_hole_cards()
+        community_cards = request.get_community_cards()
 
         # Determine street
         street = self._determine_street(len(community_cards))
@@ -100,9 +93,7 @@ class SolverService:
         actions = self.action_abstraction.get_abstract_actions(game_state)
 
         # Build information set key and get strategy
-        infoset_key = self._build_infoset_key(
-            hand_bucket, street, game_state
-        )
+        infoset_key = self._build_infoset_key(hand_bucket, street, game_state)
         strategy = self.solver.get_strategy(infoset_key)
 
         # Convert to response format
@@ -111,10 +102,10 @@ class SolverService:
         # Find recommended action
         recommended = max(strategy_actions, key=lambda x: x.probability)
 
-        solve_time = (time.perf_counter() - start_time) * 1000
-
         # Map internal Street to API StreetEnum
         street_enum = StreetEnum(street.name)
+
+        solve_time = (time.perf_counter() - start_time) * 1000
 
         return SolveResponse(
             strategy=strategy_actions,
@@ -149,11 +140,10 @@ class SolverService:
         street: Street
     ) -> GameState:
         """Build a GameState object for action abstraction."""
-        # Create minimal game state for action abstraction
-        # We use placeholder opponent cards since we don't know them
+        # Placeholder opponent cards (we don't know them)
         opponent_hole = [
-            Card.from_notation('2c'),
-            Card.from_notation('3c')
+            Card(Rank.TWO, Suit.CLUBS),
+            Card(Rank.THREE, Suit.CLUBS)
         ]
 
         return GameState(
@@ -187,7 +177,6 @@ class SolverService:
         strategy: Optional[list[float]]
     ) -> list[StrategyAction]:
         """Convert actions and strategy to StrategyAction list."""
-        # Default to uniform if no trained strategy exists
         if strategy is None:
             uniform_prob = 1.0 / len(actions) if actions else 0.0
             strategy = [uniform_prob] * len(actions)
@@ -195,7 +184,6 @@ class SolverService:
         result = []
         for i, action in enumerate(actions):
             prob = strategy[i] if i < len(strategy) else 0.0
-            # Map internal ActionType to API ActionTypeEnum
             action_enum = ActionTypeEnum(action.type.value)
             result.append(StrategyAction(
                 action=action_enum,
@@ -227,7 +215,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan
     )
 
-    # CORS middleware for Kotlin backend
     application.add_middleware(
         CORSMiddleware,
         allow_origins=['*'],
@@ -257,14 +244,10 @@ async def solve_scenario(request: SolveRequest) -> SolveResponse:
     """
     Solve a poker scenario and return GTO strategy.
 
-    The strategy includes probabilities for each legal action,
-    along with the single recommended action (highest probability).
+    Cards must be structured objects: {"rank": "A", "suit": "s"}
     """
     if not solver_service.is_loaded():
-        raise HTTPException(
-            status_code=503,
-            detail='Solver not initialized'
-        )
+        raise HTTPException(status_code=503, detail='Solver not initialized')
 
     try:
         return solver_service.solve(request)
@@ -279,14 +262,10 @@ async def train_solver(iterations: int = 10000) -> dict:
     """
     Train the CFR solver for specified iterations.
 
-    Note: This is a blocking operation and may take a long time.
-    For production, use the CLI training script instead.
+    Note: This is a blocking operation. For production, use the CLI.
     """
     if not solver_service.is_loaded():
-        raise HTTPException(
-            status_code=503,
-            detail='Solver not initialized'
-        )
+        raise HTTPException(status_code=503, detail='Solver not initialized')
 
     try:
         game_value = solver_service.solver.train(
@@ -303,8 +282,4 @@ async def train_solver(iterations: int = 10000) -> dict:
             'num_infosets': solver_service.solver.num_infosets
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Training error: {str(e)}'
-        )
-
+        raise HTTPException(status_code=500, detail=f'Training error: {str(e)}')

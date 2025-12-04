@@ -9,7 +9,8 @@ from pathlib import Path
 # Add solver root to path so 'src' is a package
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.game.card import Card, Rank, Suit, cards_from_string
+from src.enums import Rank, Suit
+from src.game.card import Card, cards_from_string
 
 
 class TestRank(unittest.TestCase):

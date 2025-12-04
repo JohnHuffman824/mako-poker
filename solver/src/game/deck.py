@@ -5,7 +5,8 @@ Deck of playing cards for poker.
 import random
 from typing import Optional
 
-from .card import Card, Rank, Suit
+from .card import Card
+from ..enums import Rank, Suit
 
 
 class Deck:

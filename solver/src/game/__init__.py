@@ -1,4 +1,5 @@
-from .card import Card, Rank, Suit
+from .card import Card, cards_from_string
+from ..enums import Rank, Suit
 from .deck import Deck
 from .hand_rankings import HandType, HandRankingConstants
 from .hand_evaluator import HandEvaluator, HandResult

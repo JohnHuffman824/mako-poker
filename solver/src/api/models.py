@@ -1,65 +1,15 @@
 """
 Pydantic models for API request/response validation.
 
-Uses structured types (enums) from the centralized enums package.
+Uses the Card class from game/card.py directly - no separate CardModel.
 """
 
-from typing import Optional
+from typing import Optional, Any
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from ..enums import (
-    RankEnum,
-    SuitEnum,
-    ActionTypeEnum,
-    PositionEnum,
-    StreetEnum,
-    HealthStatusEnum,
-)
-
-
-class CardModel(BaseModel):
-    """
-    Structured card representation.
-
-    Can be created from notation string or rank/suit enums.
-    """
-    rank: RankEnum
-    suit: SuitEnum
-
-    @property
-    def notation(self) -> str:
-        """Short notation (e.g., 'As' for Ace of Spades)."""
-        return f'{self.rank.value}{self.suit.value}'
-
-    def __str__(self) -> str:
-        return self.notation
-
-    @classmethod
-    def from_notation(cls, notation: str) -> 'CardModel':
-        """
-        Parse card from notation string (e.g., 'As', 'Th').
-
-        Args:
-            notation: Two-character string: rank + suit
-
-        Returns:
-            CardModel instance
-
-        Raises:
-            ValueError: if notation is invalid
-        """
-        if len(notation) != 2:
-            raise ValueError(f'Card notation must be 2 characters: {notation}')
-
-        rank = RankEnum.from_symbol(notation[0])
-        suit = SuitEnum.from_symbol(notation[1])
-
-        return cls(rank=rank, suit=suit)
-
-    class Config:
-        json_encoders = {
-            'CardModel': lambda c: c.notation
-        }
+from ..enums import ActionTypeEnum, PositionEnum, StreetEnum, HealthStatusEnum
+from ..enums import Rank, Suit
+from ..game.card import Card
 
 
 class StrategyAction(BaseModel):
@@ -83,15 +33,20 @@ class StrategyAction(BaseModel):
 
 
 class SolveRequest(BaseModel):
-    """Request to solve a poker scenario for GTO strategy."""
-    hole_cards: list[CardModel] = Field(
+    """
+    Request to solve a poker scenario for GTO strategy.
+
+    Cards must be provided as structured objects:
+    {"rank": "A", "suit": "s"} for Ace of Spades
+    """
+    hole_cards: list[dict[str, str]] = Field(
         min_length=2, max_length=2,
-        description='Player hole cards'
+        description='Player hole cards as {rank, suit} objects'
     )
-    community_cards: list[CardModel] = Field(
+    community_cards: list[dict[str, str]] = Field(
         default=[],
         max_length=5,
-        description='Community cards (0-5 cards depending on street)'
+        description='Community cards as {rank, suit} objects'
     )
     pot: int = Field(gt=0, description='Current pot size')
     stack: int = Field(gt=0, description='Player remaining stack')
@@ -106,41 +61,53 @@ class SolveRequest(BaseModel):
     )
     big_blind: int = Field(default=2, gt=0, description='Big blind size')
 
-    @field_validator('hole_cards', 'community_cards', mode='before')
+    @field_validator('hole_cards', 'community_cards', mode='after')
     @classmethod
-    def parse_cards(cls, cards):
-        """
-        Parse cards from various input formats.
-
-        Accepts:
-        - List of CardModel objects
-        - List of notation strings (e.g., ['As', 'Kh'])
-        - List of dicts with rank/suit keys
-        """
-        if not cards:
-            return []
-
-        result = []
+    def validate_cards(cls, cards: list[dict[str, str]]) -> list[dict[str, str]]:
+        """Validate card structure has required fields."""
         for card in cards:
-            if isinstance(card, CardModel):
-                result.append(card)
-            elif isinstance(card, str):
-                result.append(CardModel.from_notation(card))
-            elif isinstance(card, dict):
-                result.append(CardModel(**card))
-            else:
-                raise ValueError(f'Invalid card format: {card}')
-
-        return result
+            if 'rank' not in card or 'suit' not in card:
+                raise ValueError(
+                    'Card must have "rank" and "suit" fields'
+                )
+            # Validate rank
+            try:
+                Rank.from_symbol(card['rank'])
+            except ValueError:
+                raise ValueError(f'Invalid rank: {card["rank"]}')
+            # Validate suit
+            try:
+                Suit.from_symbol(card['suit'])
+            except ValueError:
+                raise ValueError(f'Invalid suit: {card["suit"]}')
+        return cards
 
     @model_validator(mode='after')
     def validate_no_duplicate_cards(self):
         """Ensure no duplicate cards in hole + community."""
         all_cards = self.hole_cards + self.community_cards
-        notations = [c.notation for c in all_cards]
-        if len(notations) != len(set(notations)):
+        card_keys = [(c['rank'], c['suit']) for c in all_cards]
+        if len(card_keys) != len(set(card_keys)):
             raise ValueError('Duplicate cards detected')
         return self
+
+    def _convert_cards(self, card_dicts: list[dict[str, str]]) -> list[Card]:
+        """Convert card dicts to Card objects."""
+        return [
+            Card(
+                rank=Rank.from_symbol(c['rank']),
+                suit=Suit.from_symbol(c['suit'])
+            )
+            for c in card_dicts
+        ]
+
+    def get_hole_cards(self) -> list[Card]:
+        """Get hole cards as Card objects."""
+        return self._convert_cards(self.hole_cards)
+
+    def get_community_cards(self) -> list[Card]:
+        """Get community cards as Card objects."""
+        return self._convert_cards(self.community_cards)
 
 
 class SolveResponse(BaseModel):
