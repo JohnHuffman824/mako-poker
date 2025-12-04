@@ -21,7 +21,7 @@
 			"@/*": ["./src/*"],
 			"@mako/shared": ["../../packages/shared/src"]
 		},
-		"types": ["bun-types"]
+		"types": ["@types/bun"]
 	},
 	"include": ["src"],
 	"references": [{ "path": "./tsconfig.node.json" }]
