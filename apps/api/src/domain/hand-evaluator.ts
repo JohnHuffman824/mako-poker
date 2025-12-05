@@ -39,6 +39,165 @@ export function evaluateHand(
 }
 
 /**
+ * Creates a HandResult object with calculated absolute rank.
+ */
+function createHandResult(
+	handType: HandType,
+	rankWithinType: number,
+	cards: Card[],
+	description: string
+): HandResult {
+	return {
+		absoluteRank: HAND_TYPE_BASE_RANKS[handType] + rankWithinType,
+		handType,
+		cards,
+		description
+	}
+}
+
+/**
+ * Checks if the hand is a straight flush or royal flush.
+ */
+function checkStraightFlush(
+	isFlush: boolean,
+	isStraight: boolean,
+	isWheel: boolean,
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (!isFlush || !isStraight) return null
+
+	const highCard = isWheel ? 5 : values[4]
+	const isRoyal = highCard == 14
+	const rankWithinType = calculateStraightFlushRank(highCard)
+	const handType = isRoyal ? HandType.ROYAL_FLUSH : HandType.STRAIGHT_FLUSH
+	const description = isRoyal
+		? 'Royal Flush'
+		: `Straight Flush, ${rankToName(highCard)} high`
+
+	return createHandResult(handType, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is four of a kind.
+ */
+function checkFourOfKind(
+	valueCounts: Record<number, number>,
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	const fourOfKind = findCountValue(valueCounts, 4)
+	if (fourOfKind == null) return null
+
+	const kicker = values.find(v => v != fourOfKind)!
+	const rankWithinType = calculateFourOfKindRank(fourOfKind, kicker)
+	const description = `Four of a Kind, ${rankToName(fourOfKind)}s`
+
+	return createHandResult(HandType.FOUR_OF_A_KIND, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is a full house.
+ */
+function checkFullHouse(
+	threeOfKind: number | null,
+	pair: number | null,
+	cards: Card[]
+): HandResult | null {
+	if (threeOfKind == null || pair == null) return null
+
+	const rankWithinType = calculateFullHouseRank(threeOfKind, pair)
+	const description = `Full House, ${rankToName(threeOfKind)}s full of ${rankToName(pair)}s`
+
+	return createHandResult(HandType.FULL_HOUSE, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is a flush.
+ */
+function checkFlush(
+	isFlush: boolean,
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (!isFlush) return null
+
+	const rankWithinType = calculateFlushRank(values)
+	const description = `Flush, ${rankToName(values[4])} high`
+
+	return createHandResult(HandType.FLUSH, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is a straight.
+ */
+function checkStraightHand(
+	isStraight: boolean,
+	isWheel: boolean,
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (!isStraight) return null
+
+	const highCard = isWheel ? 5 : values[4]
+	const rankWithinType = calculateStraightRank(highCard)
+	const description = `Straight, ${rankToName(highCard)} high`
+
+	return createHandResult(HandType.STRAIGHT, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is three of a kind.
+ */
+function checkThreeOfKind(
+	threeOfKind: number | null,
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (threeOfKind == null) return null
+
+	const kickers = values.filter(v => v != threeOfKind).sort((a, b) => b - a)
+	const rankWithinType = calculateThreeOfKindRank(threeOfKind, kickers)
+	const description = `Three of a Kind, ${rankToName(threeOfKind)}s`
+
+	return createHandResult(HandType.THREE_OF_A_KIND, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is two pair.
+ */
+function checkTwoPair(
+	pairs: number[],
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (pairs.length != 2) return null
+
+	const kicker = values.find(v => !pairs.includes(v))!
+	const rankWithinType = calculateTwoPairRank(pairs[0], pairs[1], kicker)
+	const description = `Two Pair, ${rankToName(pairs[0])}s and ${rankToName(pairs[1])}s`
+
+	return createHandResult(HandType.TWO_PAIR, rankWithinType, cards, description)
+}
+
+/**
+ * Checks if the hand is one pair.
+ */
+function checkOnePair(
+	pairs: number[],
+	values: number[],
+	cards: Card[]
+): HandResult | null {
+	if (pairs.length != 1) return null
+
+	const kickers = values.filter(v => v != pairs[0]).sort((a, b) => b - a)
+	const rankWithinType = calculateOnePairRank(pairs[0], kickers)
+	const description = `Pair of ${rankToName(pairs[0])}s`
+
+	return createHandResult(HandType.ONE_PAIR, rankWithinType, cards, description)
+}
+
+/**
  * Evaluates a specific 5-card hand.
  */
 function evaluateFiveCards(cards: Card[]): HandResult {
@@ -46,139 +205,44 @@ function evaluateFiveCards(cards: Card[]): HandResult {
 	const suits = cards.map(c => c.suit)
 	const valueCounts = countValues(values)
 
-	const isFlush = new Set(suits).size === 1
+	const isFlush = new Set(suits).size == 1
 	const isStraight = checkStraight(values)
 	const isWheel = arraysEqual(values, [2, 3, 4, 5, 14])
 
-	// Straight flush (includes royal flush)
-	if (isFlush && isStraight) {
-		const highCard = isWheel ? 5 : values[4]
-		const isRoyal = highCard === 14
+	const straightFlush = checkStraightFlush(isFlush, isStraight, isWheel, values, cards)
+	if (straightFlush) return straightFlush
 
-		const rankWithinType = calculateStraightFlushRank(highCard)
-		const handType = isRoyal ? HandType.ROYAL_FLUSH : HandType.STRAIGHT_FLUSH
+	const fourOfKind = checkFourOfKind(valueCounts, values, cards)
+	if (fourOfKind) return fourOfKind
 
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[handType] + rankWithinType,
-			handType,
-			cards,
-			description: isRoyal
-				? 'Royal Flush'
-				: `Straight Flush, ${rankToName(highCard)} high`
-		}
-	}
-
-	// Four of a kind
-	const fourOfKind = findCountValue(valueCounts, 4)
-	if (fourOfKind !== null) {
-		const kicker = values.find(v => v !== fourOfKind)!
-		const rankWithinType = calculateFourOfKindRank(fourOfKind, kicker)
-
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.FOUR_OF_A_KIND] +
-				rankWithinType,
-			handType: HandType.FOUR_OF_A_KIND,
-			cards,
-			description: `Four of a Kind, ${rankToName(fourOfKind)}s`
-		}
-	}
-
-	// Full house
 	const threeOfKind = findCountValue(valueCounts, 3)
 	const pair = findCountValue(valueCounts, 2)
 
-	if (threeOfKind !== null && pair !== null) {
-		const rankWithinType = calculateFullHouseRank(threeOfKind, pair)
+	const fullHouse = checkFullHouse(threeOfKind, pair, cards)
+	if (fullHouse) return fullHouse
 
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.FULL_HOUSE] + rankWithinType,
-			handType: HandType.FULL_HOUSE,
-			cards,
-			description: `Full House, ${rankToName(threeOfKind)}s full of ` +
-				`${rankToName(pair)}s`
-		}
-	}
+	const flush = checkFlush(isFlush, values, cards)
+	if (flush) return flush
 
-	// Flush
-	if (isFlush) {
-		const rankWithinType = calculateFlushRank(values)
+	const straight = checkStraightHand(isStraight, isWheel, values, cards)
+	if (straight) return straight
 
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.FLUSH] + rankWithinType,
-			handType: HandType.FLUSH,
-			cards,
-			description: `Flush, ${rankToName(values[4])} high`
-		}
-	}
+	const threeOfKindResult = checkThreeOfKind(threeOfKind, values, cards)
+	if (threeOfKindResult) return threeOfKindResult
 
-	// Straight
-	if (isStraight) {
-		const highCard = isWheel ? 5 : values[4]
-		const rankWithinType = calculateStraightRank(highCard)
-
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.STRAIGHT] + rankWithinType,
-			handType: HandType.STRAIGHT,
-			cards,
-			description: `Straight, ${rankToName(highCard)} high`
-		}
-	}
-
-	// Three of a kind
-	if (threeOfKind !== null) {
-		const kickers = values.filter(v => v !== threeOfKind).sort((a, b) => b - a)
-		const rankWithinType = calculateThreeOfKindRank(threeOfKind, kickers)
-
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.THREE_OF_A_KIND] +
-				rankWithinType,
-			handType: HandType.THREE_OF_A_KIND,
-			cards,
-			description: `Three of a Kind, ${rankToName(threeOfKind)}s`
-		}
-	}
-
-	// Two pair
 	const pairs = Object.entries(valueCounts)
-		.filter(([, count]) => count === 2)
+		.filter(([, count]) => count == 2)
 		.map(([val]) => parseInt(val))
 		.sort((a, b) => b - a)
 
-	if (pairs.length === 2) {
-		const kicker = values.find(v => !pairs.includes(v))!
-		const rankWithinType = calculateTwoPairRank(pairs[0], pairs[1], kicker)
+	const twoPair = checkTwoPair(pairs, values, cards)
+	if (twoPair) return twoPair
 
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.TWO_PAIR] + rankWithinType,
-			handType: HandType.TWO_PAIR,
-			cards,
-			description: `Two Pair, ${rankToName(pairs[0])}s and ` +
-				`${rankToName(pairs[1])}s`
-		}
-	}
+	const onePair = checkOnePair(pairs, values, cards)
+	if (onePair) return onePair
 
-	// One pair
-	if (pairs.length === 1) {
-		const kickers = values.filter(v => v !== pairs[0]).sort((a, b) => b - a)
-		const rankWithinType = calculateOnePairRank(pairs[0], kickers)
-
-		return {
-			absoluteRank: HAND_TYPE_BASE_RANKS[HandType.ONE_PAIR] + rankWithinType,
-			handType: HandType.ONE_PAIR,
-			cards,
-			description: `Pair of ${rankToName(pairs[0])}s`
-		}
-	}
-
-	// High card
 	const rankWithinType = calculateHighCardRank(values)
-
-	return {
-		absoluteRank: rankWithinType,
-		handType: HandType.HIGH_CARD,
-		cards,
-		description: `High Card, ${rankToName(values[4])}`
-	}
+	return createHandResult(HandType.HIGH_CARD, rankWithinType, cards, `High Card, ${rankToName(values[4])}`)
 }
 
 /**
@@ -187,20 +251,10 @@ function evaluateFiveCards(cards: Card[]): HandResult {
 function checkStraight(values: number[]): boolean {
 	const sorted = [...values].sort((a, b) => a - b)
 
-	// Normal straight: consecutive values
-	if (
-		sorted[4] - sorted[0] === 4 &&
-		new Set(sorted).size === 5
-	) {
-		return true
-	}
+	const isNormalStraight = sorted[4] - sorted[0] == 4 && new Set(sorted).size == 5
+	const isWheel = arraysEqual(sorted, [2, 3, 4, 5, 14])
 
-	// Wheel (A-2-3-4-5)
-	if (arraysEqual(sorted, [2, 3, 4, 5, 14])) {
-		return true
-	}
-
-	return false
+	return isNormalStraight || isWheel
 }
 
 /**
@@ -271,14 +325,43 @@ function normalizeToRange(
 	return targetMin + Math.floor(proportion * rangeSize)
 }
 
+/**
+ * Common helper for calculating rank within a hand type using encode-normalize pattern.
+ * Encodes the given values, then normalizes them to the target rank range.
+ *
+ * @param values - Card values to encode (should be pre-sorted as needed)
+ * @param minValues - Minimum possible values for this hand type
+ * @param maxValues - Maximum possible values for this hand type
+ * @param targetMin - Minimum rank within hand type
+ * @param targetMax - Maximum rank within hand type
+ */
+function calculateRankByEncoding(
+	values: number[],
+	minValues: number[],
+	maxValues: number[],
+	targetMin: number,
+	targetMax: number
+): number {
+	const encoded = encodeCardValues(values)
+	const minEncoded = encodeCardValues(minValues)
+	const maxEncoded = encodeCardValues(maxValues)
+	return normalizeToRange(encoded, minEncoded, maxEncoded, targetMin, targetMax)
+}
+
+/**
+ * Common helper for straight-type hands (straight and straight flush).
+ * Returns rank based on high card, with special handling for wheel (A-2-3-4-5).
+ */
+function calculateStraightTypeRank(highCard: number): number {
+	if (highCard < 5 || highCard > 14) {
+		throw new Error(`Invalid straight high card: ${highCard}`)
+	}
+	return highCard == 5 ? 1 : (highCard - 4)
+}
+
 function calculateHighCardRank(values: number[]): number {
 	const sorted = [...values].sort((a, b) => b - a)
-	const encoded = encodeCardValues(sorted)
-
-	const minEncoded = encodeCardValues([7, 5, 4, 3, 2])
-	const maxEncoded = encodeCardValues([14, 13, 12, 11, 9])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 1277)
+	return calculateRankByEncoding(sorted, [7, 5, 4, 3, 2], [14, 13, 12, 11, 9], 1, 1277)
 }
 
 function calculateOnePairRank(pairValue: number, kickers: number[]): number {
@@ -305,13 +388,13 @@ function calculateTwoPairRank(
 	lowPair: number,
 	kicker: number
 ): number {
-	const values = [highPair, lowPair, kicker]
-	const encoded = encodeCardValues(values)
-
-	const minEncoded = encodeCardValues([3, 2, 4])
-	const maxEncoded = encodeCardValues([14, 13, 12])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 858)
+	return calculateRankByEncoding(
+		[highPair, lowPair, kicker],
+		[3, 2, 4],
+		[14, 13, 12],
+		1,
+		858
+	)
 }
 
 function calculateThreeOfKindRank(
@@ -319,56 +402,28 @@ function calculateThreeOfKindRank(
 	kickers: number[]
 ): number {
 	const values = [tripsValue, ...kickers.slice(0, 2).sort((a, b) => b - a)]
-	const encoded = encodeCardValues(values)
-
-	const minEncoded = encodeCardValues([2, 5, 4])
-	const maxEncoded = encodeCardValues([14, 13, 12])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 858)
+	return calculateRankByEncoding(values, [2, 5, 4], [14, 13, 12], 1, 858)
 }
 
 function calculateStraightRank(highCard: number): number {
-	if (highCard < 5 || highCard > 14) {
-		throw new Error(`Invalid straight high card: ${highCard}`)
-	}
-	return highCard === 5 ? 1 : (highCard - 4)
+	return calculateStraightTypeRank(highCard)
 }
 
 function calculateFlushRank(values: number[]): number {
 	const sorted = [...values].sort((a, b) => b - a)
-	const encoded = encodeCardValues(sorted)
-
-	const minEncoded = encodeCardValues([7, 5, 4, 3, 2])
-	const maxEncoded = encodeCardValues([14, 13, 12, 11, 9])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 1277)
+	return calculateRankByEncoding(sorted, [7, 5, 4, 3, 2], [14, 13, 12, 11, 9], 1, 1277)
 }
 
 function calculateFullHouseRank(trips: number, pair: number): number {
-	const values = [trips, pair]
-	const encoded = encodeCardValues(values)
-
-	const minEncoded = encodeCardValues([2, 3])
-	const maxEncoded = encodeCardValues([14, 13])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 156)
+	return calculateRankByEncoding([trips, pair], [2, 3], [14, 13], 1, 156)
 }
 
 function calculateFourOfKindRank(quads: number, kicker: number): number {
-	const values = [quads, kicker]
-	const encoded = encodeCardValues(values)
-
-	const minEncoded = encodeCardValues([2, 3])
-	const maxEncoded = encodeCardValues([14, 13])
-
-	return normalizeToRange(encoded, minEncoded, maxEncoded, 1, 156)
+	return calculateRankByEncoding([quads, kicker], [2, 3], [14, 13], 1, 156)
 }
 
 function calculateStraightFlushRank(highCard: number): number {
-	if (highCard < 5 || highCard > 14) {
-		throw new Error(`Invalid straight flush high card: ${highCard}`)
-	}
-	return highCard === 5 ? 1 : (highCard - 4)
+	return calculateStraightTypeRank(highCard)
 }
 
 /**
