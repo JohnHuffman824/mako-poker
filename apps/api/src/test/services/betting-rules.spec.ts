@@ -101,7 +101,7 @@ describe('BettingRules', () => {
 		})
 
 		it('BB has option to raise even if everyone calls', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// First player calls
 			let current = gameService.processAction(game.id, { action: 'call' })
@@ -110,7 +110,6 @@ describe('BettingRules', () => {
 			current = gameService.processAction(game.id, { action: 'call' })
 
 			// BB should now have option to raise (live blind)
-			const bbPlayer = current.players.find(p => p.position === 'BB')
 			expect(current.currentPlayerIndex).toBe(
 				current.players.findIndex(p => p.position === 'BB')
 			)
@@ -162,7 +161,7 @@ describe('BettingRules', () => {
 		 * has bet, then subsequent players can fold, call or raise."
 		 */
 		it('player can check when no bet is facing them', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// Call until we get to BB who faces no additional bet
 			gameService.processAction(game.id, { action: 'call' })
@@ -174,7 +173,7 @@ describe('BettingRules', () => {
 		})
 
 		it('player must call, raise, or fold when facing a bet', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// First player raises
 			gameService.processAction(game.id, { action: 'raise', amount: 4 })
@@ -186,7 +185,7 @@ describe('BettingRules', () => {
 		})
 
 		it('availableActions indicates proper options when facing bet', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// First player raises
 			const afterRaise = gameService.processAction(game.id, {
@@ -237,7 +236,7 @@ describe('BettingRules', () => {
 		})
 
 		it('rejects raise below minimum', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// Try to raise to 1.5 when minimum is 2
 			expect(() => gameService.processAction(game.id, {
@@ -247,7 +246,7 @@ describe('BettingRules', () => {
 		})
 
 		it('allows exact minimum raise', () => {
-			const state = setupGame(3)
+			setupGame(3)
 
 			// Raise to exactly 2 (minimum)
 			const result = gameService.processAction(game.id, {
@@ -290,7 +289,7 @@ describe('BettingRules', () => {
 				smallBlind: 2,
 				bigBlind: 4
 			})
-			const state = gameService.dealHand(game.id)
+			gameService.dealHand(game.id)
 
 			// With 5 stack and 4 BB, player has 1 remaining
 			// They should be able to go all-in even if it's not a full raise
@@ -418,12 +417,10 @@ describe('BettingRules', () => {
 
 	describe('All-in scenarios', () => {
 		it('player marked all-in when betting entire stack', () => {
-			const state = setupGame(2)
+			setupGame(2)
 
 			const result = gameService.processAction(game.id, { action: 'allin' })
 
-			const player = result.players[result.currentPlayerIndex - 1] ??
-				result.players[result.players.length - 1]
 			// Find the player who went all-in
 			const allInPlayer = result.players.find(p => p.isAllIn)
 			expect(allInPlayer).toBeDefined()
@@ -449,11 +446,7 @@ describe('BettingRules', () => {
 
 	describe('toCall calculation', () => {
 		it('toCall is zero when player has matched current bet', () => {
-			const state = setupGame(3)
-
-			// BB already has 1 bet
-			const bbPlayer = state.players.find(p => p.position === 'BB')
-			const bbIndex = state.players.indexOf(bbPlayer!)
+			setupGame(3)
 
 			// If it were BB's turn and lastBet was 1, toCall would be 0
 			// But pre-flop BB acts last

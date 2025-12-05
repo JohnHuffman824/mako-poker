@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'bun:test'
 import { evaluateHand } from '../../domain/hand-evaluator'
 import { HandType } from '@mako/shared'
-import { createTestCard } from '../helpers'
+import { createCard } from '../helpers'
 
 describe('HandEvaluator', () => {
 	describe('evaluateHand', () => {
 		it('identifies a royal flush', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('K', 'spades')
+				createCard('A', 'spades'),
+				createCard('K', 'spades')
 			]
 			const communityCards = [
-				createTestCard('Q', 'spades'),
-				createTestCard('J', 'spades'),
-				createTestCard('T', 'spades')
+				createCard('Q', 'spades'),
+				createCard('J', 'spades'),
+				createCard('T', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -24,13 +24,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies a straight flush', () => {
 			const holeCards = [
-				createTestCard('9', 'hearts'),
-				createTestCard('8', 'hearts')
+				createCard('9', 'hearts'),
+				createCard('8', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('7', 'hearts'),
-				createTestCard('6', 'hearts'),
-				createTestCard('5', 'hearts')
+				createCard('7', 'hearts'),
+				createCard('6', 'hearts'),
+				createCard('5', 'hearts')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -40,13 +40,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies four of a kind', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('A', 'hearts')
+				createCard('A', 'spades'),
+				createCard('A', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('A', 'diamonds'),
-				createTestCard('A', 'clubs'),
-				createTestCard('K', 'spades')
+				createCard('A', 'diamonds'),
+				createCard('A', 'clubs'),
+				createCard('K', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -56,13 +56,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies a full house', () => {
 			const holeCards = [
-				createTestCard('K', 'spades'),
-				createTestCard('K', 'hearts')
+				createCard('K', 'spades'),
+				createCard('K', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('K', 'diamonds'),
-				createTestCard('Q', 'clubs'),
-				createTestCard('Q', 'spades')
+				createCard('K', 'diamonds'),
+				createCard('Q', 'clubs'),
+				createCard('Q', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -72,13 +72,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies a flush', () => {
 			const holeCards = [
-				createTestCard('A', 'clubs'),
-				createTestCard('9', 'clubs')
+				createCard('A', 'clubs'),
+				createCard('9', 'clubs')
 			]
 			const communityCards = [
-				createTestCard('7', 'clubs'),
-				createTestCard('4', 'clubs'),
-				createTestCard('2', 'clubs')
+				createCard('7', 'clubs'),
+				createCard('4', 'clubs'),
+				createCard('2', 'clubs')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -88,13 +88,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies a straight', () => {
 			const holeCards = [
-				createTestCard('T', 'spades'),
-				createTestCard('9', 'hearts')
+				createCard('T', 'spades'),
+				createCard('9', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('8', 'diamonds'),
-				createTestCard('7', 'clubs'),
-				createTestCard('6', 'spades')
+				createCard('8', 'diamonds'),
+				createCard('7', 'clubs'),
+				createCard('6', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -104,13 +104,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies the wheel (A-2-3-4-5)', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('2', 'hearts')
+				createCard('A', 'spades'),
+				createCard('2', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('3', 'diamonds'),
-				createTestCard('4', 'clubs'),
-				createTestCard('5', 'spades')
+				createCard('3', 'diamonds'),
+				createCard('4', 'clubs'),
+				createCard('5', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -121,13 +121,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies three of a kind', () => {
 			const holeCards = [
-				createTestCard('J', 'spades'),
-				createTestCard('J', 'hearts')
+				createCard('J', 'spades'),
+				createCard('J', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('J', 'diamonds'),
-				createTestCard('9', 'clubs'),
-				createTestCard('2', 'spades')
+				createCard('J', 'diamonds'),
+				createCard('9', 'clubs'),
+				createCard('2', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -137,13 +137,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies two pair', () => {
 			const holeCards = [
-				createTestCard('Q', 'spades'),
-				createTestCard('Q', 'hearts')
+				createCard('Q', 'spades'),
+				createCard('Q', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('8', 'diamonds'),
-				createTestCard('8', 'clubs'),
-				createTestCard('3', 'spades')
+				createCard('8', 'diamonds'),
+				createCard('8', 'clubs'),
+				createCard('3', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -153,13 +153,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies one pair', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('A', 'hearts')
+				createCard('A', 'spades'),
+				createCard('A', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('K', 'diamonds'),
-				createTestCard('9', 'clubs'),
-				createTestCard('3', 'spades')
+				createCard('K', 'diamonds'),
+				createCard('9', 'clubs'),
+				createCard('3', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -169,13 +169,13 @@ describe('HandEvaluator', () => {
 
 		it('identifies high card', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('K', 'hearts')
+				createCard('A', 'spades'),
+				createCard('K', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('9', 'diamonds'),
-				createTestCard('7', 'clubs'),
-				createTestCard('3', 'spades')
+				createCard('9', 'diamonds'),
+				createCard('7', 'clubs'),
+				createCard('3', 'spades')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -185,15 +185,15 @@ describe('HandEvaluator', () => {
 
 		it('selects best hand from 7 cards', () => {
 			const holeCards = [
-				createTestCard('A', 'spades'),
-				createTestCard('A', 'hearts')
+				createCard('A', 'spades'),
+				createCard('A', 'hearts')
 			]
 			const communityCards = [
-				createTestCard('A', 'diamonds'),
-				createTestCard('K', 'clubs'),
-				createTestCard('K', 'spades'),
-				createTestCard('Q', 'hearts'),
-				createTestCard('2', 'clubs')
+				createCard('A', 'diamonds'),
+				createCard('K', 'clubs'),
+				createCard('K', 'spades'),
+				createCard('Q', 'hearts'),
+				createCard('2', 'clubs')
 			]
 
 			const result = evaluateHand(holeCards, communityCards)
@@ -205,20 +205,20 @@ describe('HandEvaluator', () => {
 	describe('hand ranking comparison', () => {
 		it('ranks royal flush higher than straight flush', () => {
 			const royal = evaluateHand(
-				[createTestCard('A', 'spades'), createTestCard('K', 'spades')],
+				[createCard('A', 'spades'), createCard('K', 'spades')],
 				[
-					createTestCard('Q', 'spades'),
-					createTestCard('J', 'spades'),
-					createTestCard('T', 'spades')
+					createCard('Q', 'spades'),
+					createCard('J', 'spades'),
+					createCard('T', 'spades')
 				]
 			)
 
 			const straightFlush = evaluateHand(
-				[createTestCard('9', 'hearts'), createTestCard('8', 'hearts')],
+				[createCard('9', 'hearts'), createCard('8', 'hearts')],
 				[
-					createTestCard('7', 'hearts'),
-					createTestCard('6', 'hearts'),
-					createTestCard('5', 'hearts')
+					createCard('7', 'hearts'),
+					createCard('6', 'hearts'),
+					createCard('5', 'hearts')
 				]
 			)
 
@@ -227,20 +227,20 @@ describe('HandEvaluator', () => {
 
 		it('ranks higher pair above lower pair', () => {
 			const acePair = evaluateHand(
-				[createTestCard('A', 'spades'), createTestCard('A', 'hearts')],
+				[createCard('A', 'spades'), createCard('A', 'hearts')],
 				[
-					createTestCard('K', 'diamonds'),
-					createTestCard('9', 'clubs'),
-					createTestCard('3', 'spades')
+					createCard('K', 'diamonds'),
+					createCard('9', 'clubs'),
+					createCard('3', 'spades')
 				]
 			)
 
 			const kingPair = evaluateHand(
-				[createTestCard('K', 'spades'), createTestCard('K', 'hearts')],
+				[createCard('K', 'spades'), createCard('K', 'hearts')],
 				[
-					createTestCard('Q', 'diamonds'),
-					createTestCard('9', 'clubs'),
-					createTestCard('3', 'spades')
+					createCard('Q', 'diamonds'),
+					createCard('9', 'clubs'),
+					createCard('3', 'spades')
 				]
 			)
 

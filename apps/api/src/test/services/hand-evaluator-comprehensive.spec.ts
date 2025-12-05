@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test'
 import { evaluateHand } from '../../domain/hand-evaluator'
-import { createTestCard } from '../helpers'
+import { createCard } from '../helpers'
 import { HandType } from '@mako/shared'
 import type { Card, Rank, Suit } from '@mako/shared'
 
@@ -37,7 +37,7 @@ function cards(notation: string): Card[] {
 		if (!rank) throw new Error(`Invalid rank: ${rankStr}`)
 		if (!suit) throw new Error(`Invalid suit: ${suitChar}`)
 
-		return createTestCard(rank, suit)
+		return createCard(rank, suit)
 	})
 }
 

@@ -1,6 +1,9 @@
-import type { GameState, Player, Card, Rank, Suit } from '@mako/shared'
+import {GameState, Player, Card, createCard} from '@mako/shared'
 import { STREET_PREFLOP } from '@mako/shared'
 import type { InternalGameState } from '../domain/game-state'
+
+// Re-export createCard for test files
+export { createCard }
 
 /**
  * Creates a test game state.
@@ -66,35 +69,25 @@ export function createTestPlayer(
 }
 
 /**
- * Creates a test card.
- */
-export function createTestCard(rank: Rank, suit: Suit): Card {
-	return {
-		rank,
-		suit
-	}
-}
-
-/**
  * Creates a minimal test deck.
  */
 export function createTestDeck(): Card[] {
 	return [
-		createTestCard('A', 'spades'),
-		createTestCard('K', 'spades'),
-		createTestCard('Q', 'spades'),
-		createTestCard('J', 'spades'),
-		createTestCard('T', 'spades'),
-		createTestCard('9', 'spades'),
-		createTestCard('8', 'spades'),
-		createTestCard('7', 'spades'),
-		createTestCard('6', 'spades'),
-		createTestCard('5', 'spades'),
-		createTestCard('4', 'spades'),
-		createTestCard('3', 'spades'),
-		createTestCard('2', 'spades'),
-		createTestCard('A', 'hearts'),
-		createTestCard('K', 'hearts'),
-		createTestCard('Q', 'hearts')
+		createCard('A', 'spades'),
+		createCard('K', 'spades'),
+		createCard('Q', 'spades'),
+		createCard('J', 'spades'),
+		createCard('T', 'spades'),
+		createCard('9', 'spades'),
+		createCard('8', 'spades'),
+		createCard('7', 'spades'),
+		createCard('6', 'spades'),
+		createCard('5', 'spades'),
+		createCard('4', 'spades'),
+		createCard('3', 'spades'),
+		createCard('2', 'spades'),
+		createCard('A', 'hearts'),
+        createCard('K', 'hearts'),
+		createCard('Q', 'hearts')
 	]
 }

@@ -91,7 +91,7 @@ These conventions must be followed for all code written in this repository.
 ### Readability
 - No double negatives in conditionals
 
-## JavaScript/TypeScript Conventions
+## TypeScript Conventions
 
 ### Syntax & Operators
 - **No semicolons** at end of lines (except when required for ASI)
@@ -99,11 +99,17 @@ These conventions must be followed for all code written in this repository.
 - Use optional chaining `?.` instead of patterns like `foo && foo.bar`
 - Use nullish coalescing `??` instead of logical OR `||` for default values
 
+## CSS/Tailwind Conventions
+
+### Try to avoid duplication
+- Leverage the @apply function when possible
+- Initialize re-usable components when applicable
+
 ## Naming Conventions
 
 ### File & Class Names
 - File/class names must match
-- JS, CSS files use same base name
+- JTS, CSS files use same base name
 
 ### Terminology
 - Consistent terminology (don't use multiple names for same concept)

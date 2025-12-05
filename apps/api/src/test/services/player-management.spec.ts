@@ -112,7 +112,7 @@ describe('PlayerManagement', () => {
 			gameService.dealHand(game.id)
 
 			expect(() => gameService.addPlayerAtSeat(game.id, 5)).toThrow(
-				'Cannot add player during hand'
+				'Cannot modify players during hand'
 			)
 		})
 
@@ -178,7 +178,7 @@ describe('PlayerManagement', () => {
 			gameService.dealHand(game.id)
 
 			expect(() => gameService.removePlayerAtSeat(game.id, 2)).toThrow(
-				'Cannot remove player during hand'
+				'Cannot modify players during hand'
 			)
 		})
 	})
@@ -232,7 +232,7 @@ describe('PlayerManagement', () => {
 			gameService.dealHand(game.id)
 
 			expect(() => gameService.updatePlayerCount(game.id, 4)).toThrow(
-				'Cannot change player count during hand'
+				'Cannot modify players during hand'
 			)
 		})
 	})

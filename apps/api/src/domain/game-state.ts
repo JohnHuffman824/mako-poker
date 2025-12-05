@@ -1,7 +1,8 @@
-import type { GameState, Player, Card } from '@mako/shared'
+import type { GameState, Player, Card, AvailableActions } from '@mako/shared'
 import { STREET_PREFLOP, createShuffledDeck } from '@mako/shared'
 import { createPlayer } from './player'
 import { buildActionOrderSeats } from '../services/position-service'
+import type { GameEvent } from './game-events'
 
 /**
  * Game state defaults.
@@ -78,6 +79,51 @@ export function createGameState(params: {
  */
 export interface InternalGameState extends GameState {
 	deck: Card[]
+}
+
+/**
+ * Game aggregate with state and event history for event sourcing.
+ * This is the primary storage unit - tracks both current state and
+ * all events that led to this state.
+ */
+export interface GameAggregate {
+	state: InternalGameState
+	events: GameEvent[]
+	version: number
+	userId: string
+	createdAt: number
+	updatedAt: number
+}
+
+/**
+ * Creates a new game aggregate.
+ */
+export function createGameAggregate(
+	state: InternalGameState,
+	userId: string,
+	initialEvent: GameEvent
+): GameAggregate {
+	const now = Date.now()
+	return {
+		state,
+		events: [initialEvent],
+		version: 1,
+		userId,
+		createdAt: now,
+		updatedAt: now
+	}
+}
+
+/**
+ * Appends an event to the aggregate and updates metadata.
+ */
+export function appendEvent(
+	aggregate: GameAggregate,
+	event: GameEvent
+): void {
+	aggregate.events.push(event)
+	aggregate.version++
+	aggregate.updatedAt = Date.now()
 }
 
 /**
@@ -171,21 +217,13 @@ export function toGameStateDto(
 function calculateAvailableActions(
 	game: InternalGameState,
 	player: Player | null
-): string | null {
+): AvailableActions | null {
 	if (!player || !game.isHandInProgress) return null
-	if (player.isFolded || player.isAllIn) return 'NONE'
+	if (player.isFolded || player.isAllIn) return null
 
 	const toCall = (game.lastBet ?? 0) - player.currentBet
 
 	if (toCall <= 0) {
-		// BB preflop special case
-		if (
-			game.street === STREET_PREFLOP &&
-			player.position === 'BB' &&
-			player.lastAction === 'BB'
-		) {
-			return 'CHECK_RAISE_FOLD'
-		}
 		return 'CHECK_BET_FOLD'
 	}
 
