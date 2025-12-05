@@ -4,7 +4,7 @@
  */
 export type {
 	Card,
-	Rank,
+	RankChar,
 	Suit,
 	Player,
 	Blinds,

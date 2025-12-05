@@ -8,5 +8,4 @@ export * from './hooks'
 export * from './types/game.types'
 
 // Constants
-export * from './constants/game.constants'
 export * from './constants/positions'

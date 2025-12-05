@@ -17,7 +17,7 @@ import {
 	UI_SIZES,
 	CARD_DISPLAY,
 	POSITION_CLASSES,
-} from '../../constants/game.constants'
+} from '@mako/shared'
 import {
 	PotDisplay,
 	PlayingCard,

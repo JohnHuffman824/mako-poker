@@ -1,8 +1,8 @@
 import { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
-import { Card, StatsBubble, BetChip } from '../common'
+import { Card, CardData, StatsBubble, BetChip } from '../common'
 
-interface CardData {
+interface ApiCardData {
 	rank: string
 	suit: string
 }
@@ -11,7 +11,7 @@ interface PlayerSeatProps {
 	seatIndex: number
 	position: string
 	stack: number
-	holeCards: CardData[] | null
+	holeCards: ApiCardData[] | null
 	lastAction: string | null
 	isFolded: boolean
 	currentBet: number
@@ -57,7 +57,7 @@ export function PlayerSeat({
 					<div className="flex gap-1.5">
 				{showCards ? (
 					holeCards.map((card, i) => (
-						<Card key={i} card={card} size="sm" />
+						<Card key={i} card={card as CardData} size="sm" />
 					))
 				) : (
 					<>
@@ -89,7 +89,7 @@ export function PlayerSeat({
 					<div className="flex gap-1.5">
 						{showCards ? (
 							holeCards.map((card, i) => (
-								<Card key={i} card={card} size="sm" />
+								<Card key={i} card={card as CardData} size="sm" />
 							))
 						) : (
 							<>

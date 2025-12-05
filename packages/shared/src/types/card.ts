@@ -2,7 +2,7 @@
  * Card rank string literals.
  * All ranks use single-character representation: 2-9, T (ten), J, Q, K, A.
  */
-export type Rank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
+export type RankChar = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 	'T' | 'J' | 'Q' | 'K' | 'A'
 
 /**
@@ -14,14 +14,14 @@ export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades'
  * Represents a playing card.
  */
 export interface Card {
-	rank: Rank
+	rank: RankChar
 	suit: Suit
 }
 
 /**
  * Rank numeric values for comparison (2-14).
  */
-const RANK_VALUES: Record<Rank, number> = {
+const RANK_VALUES: Record<RankChar, number> = {
 	'2': 2,
 	'3': 3,
 	'4': 4,
@@ -40,12 +40,12 @@ const RANK_VALUES: Record<Rank, number> = {
 /**
  * Gets the numeric value of a rank (2-14).
  */
-export const rankValue = (rank: Rank): number => RANK_VALUES[rank]
+export const rankValue = (rank: RankChar): number => RANK_VALUES[rank]
 
 /**
  * All ranks in order from low to high.
  */
-export const ALL_RANKS: Rank[] = [
+export const ALL_RANKS: RankChar[] = [
 	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
 ]
 
@@ -57,7 +57,7 @@ export const ALL_SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades']
 /**
  * Creates a card from rank and suit.
  */
-export function createCard(rank: Rank, suit: Suit): Card {
+export function createCard(rank: RankChar, suit: Suit): Card {
 	return { rank, suit }
 }
 

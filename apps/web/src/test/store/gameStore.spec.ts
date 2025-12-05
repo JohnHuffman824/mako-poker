@@ -23,8 +23,6 @@ describe('Game Store', () => {
 	describe('Error Handling', () => {
 
 		it('sets error state when provided', () => {
-			const store = useGameStore.getState()
-
 			// Manually set error (simulating failed API call)
 			useGameStore.setState({ error: 'Test error message' })
 
@@ -113,8 +111,11 @@ describe('Game Store', () => {
 				winner: null,
 				winningHand: null,
 				availableActions: null,
-				actionOrderSeats: null,
+				actionOrderSeats: [],
 				isShowdown: false,
+				sidePots: [],
+				playerContributions: {},
+				lastBet: 0
 			}
 
 			useGameStore.setState({ game: mockGame })

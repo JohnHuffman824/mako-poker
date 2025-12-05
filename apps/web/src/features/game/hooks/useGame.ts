@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useGameStore } from '@/store/gameStore'
-import { GAME_DEFAULTS } from '../constants/game.constants'
+import { GAME_DEFAULTS } from '@mako/shared'
 
 /**
  * Hook for managing game state and initialization.

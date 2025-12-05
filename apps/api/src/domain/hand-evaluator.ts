@@ -1,5 +1,5 @@
 import type { Card, HandResult } from '@mako/shared'
-import { rankValue, HandType, HAND_TYPE_NAMES } from '@mako/shared'
+import { rankValue, HandType, HAND_TYPE_NAMES, Rank, HAND_EVAL } from '@mako/shared'
 import { HAND_TYPE_BASE_RANKS } from './hand-rankings'
 
 /**
@@ -67,8 +67,8 @@ function checkStraightFlush(
 ): HandResult | null {
 	if (!isFlush || !isStraight) return null
 
-	const highCard = isWheel ? 5 : values[4]
-	const isRoyal = highCard == 14
+	const highCard = isWheel ? Rank.FIVE : values[4]
+	const isRoyal = highCard == Rank.ACE
 	const rankWithinType = calculateStraightFlushRank(highCard)
 	const handType = isRoyal ? HandType.ROYAL_FLUSH : HandType.STRAIGHT_FLUSH
 	const description = isRoyal
@@ -139,7 +139,7 @@ function checkStraightHand(
 ): HandResult | null {
 	if (!isStraight) return null
 
-	const highCard = isWheel ? 5 : values[4]
+	const highCard = isWheel ? Rank.FIVE : values[4]
 	const rankWithinType = calculateStraightRank(highCard)
 	const description = `Straight, ${rankToName(highCard)} high`
 
@@ -207,7 +207,7 @@ function evaluateFiveCards(cards: Card[]): HandResult {
 
 	const isFlush = new Set(suits).size == 1
 	const isStraight = checkStraight(values)
-	const isWheel = arraysEqual(values, [2, 3, 4, 5, 14])
+	const isWheel = arraysEqual(values, [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.ACE])
 
 	const straightFlush = checkStraightFlush(isFlush, isStraight, isWheel, values, cards)
 	if (straightFlush) return straightFlush
@@ -252,7 +252,7 @@ function checkStraight(values: number[]): boolean {
 	const sorted = [...values].sort((a, b) => a - b)
 
 	const isNormalStraight = sorted[4] - sorted[0] == 4 && new Set(sorted).size == 5
-	const isWheel = arraysEqual(sorted, [2, 3, 4, 5, 14])
+	const isWheel = arraysEqual(sorted, [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.ACE])
 
 	return isNormalStraight || isWheel
 }
@@ -353,32 +353,27 @@ function calculateRankByEncoding(
  * Returns rank based on high card, with special handling for wheel (A-2-3-4-5).
  */
 function calculateStraightTypeRank(highCard: number): number {
-	if (highCard < 5 || highCard > 14) {
+	if (highCard < Rank.FIVE || highCard > Rank.ACE) {
 		throw new Error(`Invalid straight high card: ${highCard}`)
 	}
-	return highCard == 5 ? 1 : (highCard - 4)
+	return highCard == Rank.FIVE ? 1 : (highCard - 4)
 }
 
 function calculateHighCardRank(values: number[]): number {
 	const sorted = [...values].sort((a, b) => b - a)
-	return calculateRankByEncoding(sorted, [7, 5, 4, 3, 2], [14, 13, 12, 11, 9], 1, 1277)
+	return calculateRankByEncoding(sorted, [Rank.SEVEN, Rank.FIVE, Rank.FOUR, Rank.THREE, Rank.TWO], [Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK, Rank.NINE], 1, HAND_EVAL.RANGE.HIGH_CARD)
 }
 
 function calculateOnePairRank(pairValue: number, kickers: number[]): number {
 	const sortedKickers = kickers.slice(0, 3).sort((a, b) => b - a)
 
-	// Use a wider range to preserve third kicker distinction
-	// The range (2860) is multiplied by 10 internally, then divided back
-	// This gives us fractional precision for the third kicker
 	const encoded =
-		(pairValue - 2) * 1690 +      // 169 * 10 per pair value
-		(sortedKickers[0] - 2) * 130 + // 13 * 10 per first kicker
-		(sortedKickers[1] - 2) * 10 +  // 1 * 10 per second kicker
-		(sortedKickers[2] - 2)         // 1 per third kicker
+		(pairValue - Rank.TWO) * HAND_EVAL.ONE_PAIR.PAIR_MULTIPLIER +
+		(sortedKickers[0] - Rank.TWO) * HAND_EVAL.ONE_PAIR.FIRST_KICKER_MULTIPLIER +
+		(sortedKickers[1] - Rank.TWO) * HAND_EVAL.ONE_PAIR.SECOND_KICKER_MULTIPLIER +
+		(sortedKickers[2] - Rank.TWO) * HAND_EVAL.ONE_PAIR.THIRD_KICKER_MULTIPLIER
 
-	// Max encoded value: 12*1690 + 12*130 + 12*10 + 12 = 22,092
-	// Scale to 1-2860 range
-	const scaled = Math.floor(encoded * 2859 / 22092) + 1
+	const scaled = Math.floor(encoded * HAND_EVAL.ONE_PAIR.TARGET_RANGE / HAND_EVAL.ONE_PAIR.MAX_ENCODED) + 1
 
 	return Math.max(1, Math.min(2860, scaled))
 }
@@ -390,10 +385,10 @@ function calculateTwoPairRank(
 ): number {
 	return calculateRankByEncoding(
 		[highPair, lowPair, kicker],
-		[3, 2, 4],
-		[14, 13, 12],
+		[Rank.THREE, Rank.TWO, Rank.FOUR],
+		[Rank.ACE, Rank.KING, Rank.QUEEN],
 		1,
-		858
+		HAND_EVAL.RANGE.TWO_PAIR
 	)
 }
 
@@ -402,7 +397,7 @@ function calculateThreeOfKindRank(
 	kickers: number[]
 ): number {
 	const values = [tripsValue, ...kickers.slice(0, 2).sort((a, b) => b - a)]
-	return calculateRankByEncoding(values, [2, 5, 4], [14, 13, 12], 1, 858)
+	return calculateRankByEncoding(values, [Rank.TWO, Rank.FIVE, Rank.FOUR], [Rank.ACE, Rank.KING, Rank.QUEEN], 1, HAND_EVAL.RANGE.THREE_OF_KIND)
 }
 
 function calculateStraightRank(highCard: number): number {
@@ -411,15 +406,15 @@ function calculateStraightRank(highCard: number): number {
 
 function calculateFlushRank(values: number[]): number {
 	const sorted = [...values].sort((a, b) => b - a)
-	return calculateRankByEncoding(sorted, [7, 5, 4, 3, 2], [14, 13, 12, 11, 9], 1, 1277)
+	return calculateRankByEncoding(sorted, [Rank.SEVEN, Rank.FIVE, Rank.FOUR, Rank.THREE, Rank.TWO], [Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK, Rank.NINE], 1, HAND_EVAL.RANGE.FLUSH)
 }
 
 function calculateFullHouseRank(trips: number, pair: number): number {
-	return calculateRankByEncoding([trips, pair], [2, 3], [14, 13], 1, 156)
+	return calculateRankByEncoding([trips, pair], [Rank.TWO, Rank.THREE], [Rank.ACE, Rank.KING], 1, HAND_EVAL.RANGE.FULL_HOUSE)
 }
 
 function calculateFourOfKindRank(quads: number, kicker: number): number {
-	return calculateRankByEncoding([quads, kicker], [2, 3], [14, 13], 1, 156)
+	return calculateRankByEncoding([quads, kicker], [Rank.TWO, Rank.THREE], [Rank.ACE, Rank.KING], 1, HAND_EVAL.RANGE.FOUR_OF_KIND)
 }
 
 function calculateStraightFlushRank(highCard: number): number {
@@ -431,11 +426,11 @@ function calculateStraightFlushRank(highCard: number): number {
  */
 function rankToName(value: number): string {
 	switch (value) {
-		case 14: return 'Ace'
-		case 13: return 'King'
-		case 12: return 'Queen'
-		case 11: return 'Jack'
-		case 10: return 'Ten'
+		case Rank.ACE: return 'Ace'
+		case Rank.KING: return 'King'
+		case Rank.QUEEN: return 'Queen'
+		case Rank.JACK: return 'Jack'
+		case Rank.TEN: return 'Ten'
 		default: return value.toString()
 	}
 }

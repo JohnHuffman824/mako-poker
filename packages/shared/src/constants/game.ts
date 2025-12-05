@@ -10,7 +10,8 @@ export const GAME_DEFAULTS = {
 	MAX_PLAYERS: 10,
 	MIN_BLIND: 1,
 	MAX_BLIND: 100,
-	BLIND_INCREMENT: 1
+	BLIND_INCREMENT: 1,
+	HERO_SEAT_INDEX: 0
 } as const
 
 /**
@@ -36,4 +37,3 @@ export const POSITION_NAMES: Record<number, string[]> = {
 	9: ['BTN', 'SB', 'BB', 'UTG', 'UTG+1', 'UTG+2', 'MP', 'HJ', 'CO'],
 	10: ['BTN', 'SB', 'BB', 'UTG', 'UTG+1', 'UTG+2', 'MP', 'MP+1', 'HJ', 'CO']
 }
-

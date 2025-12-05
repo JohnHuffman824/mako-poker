@@ -219,7 +219,7 @@ export type {
 	Card as CardDto,
 	Player as PlayerDto,
 	SidePot as SidePotDto,
-	Rank,
+	RankChar,
 	Suit
 } from '@mako/shared'
 

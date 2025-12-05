@@ -2,7 +2,7 @@ import { describe, it, expect } from 'bun:test'
 import { evaluateHand } from '../../domain/hand-evaluator'
 import { createCard } from '../helpers'
 import { HandType } from '@mako/shared'
-import type { Card, Rank, Suit } from '@mako/shared'
+import type { Card, RankChar, Suit } from '@mako/shared'
 
 /**
  * Comprehensive tests for the hand evaluator.
@@ -25,7 +25,7 @@ function cards(notation: string): Card[] {
 			'c': 'clubs'
 		}
 
-		const rankMap: Record<string, Rank> = {
+		const rankMap: Record<string, RankChar> = {
 			'A': 'A', 'K': 'K', 'Q': 'Q', 'J': 'J', 'T': 'T',
 			'10': 'T', '9': '9', '8': '8', '7': '7', '6': '6',
 			'5': '5', '4': '4', '3': '3', '2': '2'

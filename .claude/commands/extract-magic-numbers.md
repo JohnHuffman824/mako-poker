@@ -46,6 +46,11 @@ strings, and potential constants.
   - Good: `ANIMATION_DELAY_MS`, `ActionType.FOLD`
   - Bad: `ONE_THOUSAND`, `FOLD_STRING`
 
+- Extract where:
+    - Extract constants to the packages/shared/src/constants directory
+    - Properly import them back in to the relevant file
+    - Ensure there are proper comments for the new constants
+
 ## If user wants to apply suggestions
 
 Ask which suggestions to apply, then:

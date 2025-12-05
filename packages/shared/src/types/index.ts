@@ -1,5 +1,5 @@
 // Card types and utilities
-export type { Card, Rank, Suit } from './card'
+export type { Card, RankChar, Suit } from './card'
 export {
 	rankValue,
 	ALL_RANKS,

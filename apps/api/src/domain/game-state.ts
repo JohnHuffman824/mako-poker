@@ -1,19 +1,8 @@
 import type { GameState, Player, Card, AvailableActions } from '@mako/shared'
-import { STREET_PREFLOP, createShuffledDeck } from '@mako/shared'
+import { STREET_PREFLOP, createShuffledDeck, GAME_DEFAULTS } from '@mako/shared'
 import { createPlayer } from './player'
 import { buildActionOrderSeats } from '../services/position-service'
 import type { GameEvent } from './game-events'
-
-/**
- * Game state defaults.
- */
-export const GAME_DEFAULTS = {
-	PLAYER_COUNT: 6,
-	STARTING_STACK: 100,
-	SMALL_BLIND: 0.5,
-	BIG_BLIND: 1,
-	HERO_SEAT_INDEX: 0
-}
 
 /**
  * Creates a new game state.

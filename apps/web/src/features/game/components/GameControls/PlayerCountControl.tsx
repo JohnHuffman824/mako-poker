@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { GAME_DEFAULTS } from '../../constants/game.constants'
+import { GAME_DEFAULTS } from '@mako/shared'
 
 interface PlayerCountControlProps {
 	count: number
