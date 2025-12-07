@@ -162,3 +162,12 @@ export const WINNER_ANNOUNCEMENT_POSITION = {
 	top: 330,
 	left: 720,
 }
+
+/**
+ * Position for hero's stack bubble display.
+ * Positioned below hero cards at bottom center.
+ */
+export const HERO_STACK_POSITION = {
+	top: 720,
+	left: 720,
+}

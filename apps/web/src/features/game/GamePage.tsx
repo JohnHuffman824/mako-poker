@@ -29,9 +29,12 @@ export function GamePage() {
 		initializeGame()
 	}, [initializeGame])
 
-	if (!game) {
+	if (!game || !game.blinds) {
 		return <LoadingScreen />
 	}
+
+	const heroPlayer = game.players.find(p => p.isHero)
+	const heroStack = heroPlayer?.stack ?? 0
 
 	const isHeroTurn = game.isHandInProgress &&
 		game.currentPlayerIndex == game.heroSeatIndex
@@ -107,6 +110,7 @@ export function GamePage() {
 							pot={game.pot}
 							isVisible={true}
 							isLoading={isLoading}
+							heroStack={heroStack}
 							onFold={handleFold}
 							onCall={handleCall}
 							onRaise={handleRaise}

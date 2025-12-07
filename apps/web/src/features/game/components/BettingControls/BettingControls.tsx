@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface BettingControlsProps {
 	toCall: number
@@ -7,6 +7,7 @@ interface BettingControlsProps {
 	pot: number
 	isVisible: boolean
 	isLoading: boolean
+	heroStack: number
 	onFold: () => void
 	onCall: () => void
 	onRaise: (amount: number) => void
@@ -22,12 +23,66 @@ export function BettingControls({
 	maxRaise,
 	isVisible,
 	isLoading,
+	heroStack,
 	onFold,
 	onCall,
 	onRaise,
 }: BettingControlsProps) {
 	const [raiseAmount, setRaiseAmount] = useState(minRaise)
+	const [inputValue, setInputValue] = useState(minRaise.toFixed(0))
 	const isCheck = toCall == 0
+
+	const sliderMin = minRaise
+	const sliderMax = Math.min(maxRaise, heroStack)
+
+	/**
+	 * Clamps a value between slider min and max bounds
+	 */
+	const clampValue = (value: number) => Math.max(
+		sliderMin,
+		Math.min(sliderMax, value)
+	)
+
+	/**
+	 * Reset raise amount when minRaise changes (new betting round)
+	 */
+	useEffect(() => {
+		setRaiseAmount(minRaise)
+		setInputValue(minRaise.toFixed(0))
+	}, [minRaise])
+
+	/**
+	 * Updates both the slider and input when slider changes
+	 */
+	const handleSliderChange = (value: number) => {
+		setRaiseAmount(value)
+		setInputValue(value.toFixed(0))
+	}
+
+	/**
+	 * Handles input field changes with validation
+	 */
+	const handleInputChange = (value: string) => {
+		setInputValue(value)
+		const numValue = parseFloat(value)
+		if (!isNaN(numValue)) {
+			setRaiseAmount(clampValue(numValue))
+		}
+	}
+
+	/**
+	 * Syncs input field on blur to ensure valid value
+	 */
+	const handleInputBlur = () => {
+		const numValue = parseFloat(inputValue)
+		if (isNaN(numValue)) {
+			setInputValue(raiseAmount.toFixed(0))
+		} else {
+			const clampedValue = clampValue(numValue)
+			setRaiseAmount(clampedValue)
+			setInputValue(clampedValue.toFixed(0))
+		}
+	}
 
 	if (!isVisible) {
 		return <BottomOverlay />
@@ -39,34 +94,47 @@ export function BettingControls({
 
 	return (
 		<div
-			className="w-full h-36 left-0 bottom-0 absolute
-								 inline-flex flex-col justify-center items-center gap-4"
+			className="w-full h-36 left-0 bottom-0 absolute inline-flex
+								 flex-col justify-center items-center gap-4"
 		>
 			{/* Background overlay */}
-			<div className="w-full h-36 left-0 top-0 absolute bg-gray-600/40" />
+			<div
+				className="w-full h-36 left-0 top-0 absolute
+									 bg-gray-600/40"
+			/>
 
 			{/* Slider row */}
-			<div className="w-[768px] h-10 inline-flex justify-center items-center gap-4 z-10">
+			<div
+				className="w-[768px] h-10 inline-flex justify-center
+									 items-center gap-4 z-10"
+			>
 				{/* Range slider track */}
-				<div className="w-[529px] h-2 relative bg-gray-600/50 rounded-[10px]">
+				<div
+					className="w-[529px] h-2 relative bg-gray-600/50
+										 rounded-[10px]"
+				>
 					<input
 						type="range"
-						min={minRaise}
-						max={maxRaise}
+						min={sliderMin}
+						max={sliderMax}
 						step={0.5}
 						value={raiseAmount}
-						onChange={(e) => setRaiseAmount(parseFloat(e.target.value))}
+						onChange={(e) =>
+							handleSliderChange(parseFloat(e.target.value))
+						}
 						disabled={isLoading}
-						className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+						className="absolute inset-0 w-full h-full opacity-0
+											 cursor-pointer"
 					/>
 					{/* Fill indicator */}
 					<div
 						className="absolute left-0 top-0 h-2 bg-white/60
 											 rounded-[10px]"
 						style={{
-							width: 
-								`${((raiseAmount - minRaise) / 
-								(maxRaise - minRaise)) * 100}%`
+							width: sliderMax > sliderMin
+								? `${((raiseAmount - sliderMin) / 
+									(sliderMax - sliderMin)) * 100}%`
+								: '0%'
 						}}
 					/>
 				</div>
@@ -76,13 +144,21 @@ export function BettingControls({
 					className="w-24 h-10 px-3 bg-gray-700/60 rounded-[10px]
 										 flex justify-start items-center gap-2"
 				>
-					<div className="flex-1 h-6 flex justify-start items-center overflow-hidden">
-						<div
-							className="text-center justify-start text-white text-base
-												 font-normal font-sf-compact leading-6"
-						>
-							{raiseAmount.toFixed(0)}
-						</div>
+					<div
+						className="flex-1 h-6 flex justify-start items-center
+									 overflow-hidden"
+					>
+						<input
+							type="text"
+							value={inputValue}
+							onChange={(e) => handleInputChange(e.target.value)}
+							onBlur={handleInputBlur}
+							disabled={isLoading}
+							className="w-full text-center bg-transparent
+												 text-white text-base font-normal
+												 font-sf-compact leading-6 outline-none
+												 disabled:opacity-50"
+						/>
 					</div>
 					<div className="w-5 h-6 relative">
 					<div
@@ -97,7 +173,10 @@ export function BettingControls({
 			</div>
 
 			{/* Action buttons row */}
-			<div className="w-80 h-11 inline-flex justify-center items-start gap-3 z-10">
+			<div
+				className="w-80 h-11 inline-flex justify-center
+									 items-start gap-3 z-10"
+			>
 				{/* Fold button */}
 				<button
 					onClick={onFold}
@@ -108,9 +187,10 @@ export function BettingControls({
 										 transition-all"
 				>
 					<div
-						className="left-[30px] top-[9.50px] absolute text-center
-											 justify-start text-gray-800 text-xl font-normal
-											 font-sf-compact leading-6"
+						className="left-[30px] top-[9.50px] absolute
+									 text-center justify-start text-gray-800
+									 text-xl font-normal font-sf-compact
+									 leading-6"
 					>
 						Fold
 					</div>
@@ -126,9 +206,10 @@ export function BettingControls({
 										 transition-all"
 				>
 					<div
-						className="left-[29px] top-[9.50px] absolute text-center
-											 justify-start text-gray-800 text-xl font-normal
-											 font-sf-compact leading-6"
+						className="left-[29px] top-[9.50px] absolute
+									 text-center justify-start text-gray-800
+									 text-xl font-normal font-sf-compact
+									 leading-6"
 					>
 						{isCheck ? 'Check' : `Call ${toCall.toFixed(0)}`}
 					</div>
@@ -144,9 +225,10 @@ export function BettingControls({
 										 transition-all"
 				>
 					<div
-						className="left-[31px] top-[9.50px] absolute text-center
-											 justify-start text-gray-800 text-xl font-normal
-											 font-sf-compact leading-6"
+						className="left-[31px] top-[9.50px] absolute
+									 text-center justify-start text-gray-800
+									 text-xl font-normal font-sf-compact
+									 leading-6"
 					>
 						{raiseAmount.toFixed(0)}x
 					</div>

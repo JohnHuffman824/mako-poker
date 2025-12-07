@@ -12,6 +12,7 @@ import {
 	COMMUNITY_CARDS_POSITION,
 	POT_DISPLAY_POSITION,
 	WINNER_ANNOUNCEMENT_POSITION,
+	HERO_STACK_POSITION,
 } from '../../constants/positions'
 import {
 	UI_SIZES,
@@ -57,6 +58,11 @@ export function PokerTable({
 	const canModifySeats = !game.isHandInProgress && !isLoading
 	const buttonPos = getDealerButtonPosition(game.dealerSeatIndex)
 	const isShowdown = game.isShowdown
+	
+	const heroPlayer = playersBySeat.get(HERO_SEAT_INDEX)
+	const heroStackInBB = heroPlayer && game.blinds.big > 0
+		? Math.floor(heroPlayer.stack / game.blinds.big)
+		: 0
 
 	return (
 		<div className="absolute inset-0">
@@ -84,7 +90,7 @@ export function PokerTable({
 				</div>
 			)}
 
-			{/* Community cards - positioned separately to avoid overlap */}
+			{/* Community cards - positioned separately */}
 			{game.communityCards.length > 0 && (
 				<div
 					className={POSITION_CLASSES.CENTERED_Z10}
@@ -110,7 +116,7 @@ export function PokerTable({
 				</div>
 			)}
 
-			{/* Dealer button - moves clockwise around table after each hand */}
+			{/* Dealer button - moves clockwise after each hand */}
 			<ButtonMarker
 				style={{
 					position: 'absolute',
@@ -144,6 +150,22 @@ export function PokerTable({
 				)
 			})}
 
+			{/* Hero stack bubble - positioned separately from cards */}
+			{heroPlayer && (
+				<div
+					className={POSITION_CLASSES.CENTERED_Z10}
+					style={{
+						top: HERO_STACK_POSITION.top,
+						left: HERO_STACK_POSITION.left,
+					}}
+				>
+					<HeroStackBubble
+						stackBB={heroStackInBB}
+						position={heroPlayer.position}
+					/>
+				</div>
+			)}
+
 			{/* All 10 seats */}
 			{ALL_SEAT_POSITIONS.map((pos, seatIndex) => {
 				const player = playersBySeat.get(seatIndex)
@@ -160,9 +182,10 @@ export function PokerTable({
 				}
 
 				if (player) {
-					const isCurrentTurn =
-						game.currentPlayerIndex == seatIndex && game.isHandInProgress
-					const isTopPosition = pos.top <= UI_SIZES.TOP_SECTION_THRESHOLD
+					const isCurrentTurn = game.currentPlayerIndex == seatIndex
+						&& game.isHandInProgress
+					const isTopPosition =
+						pos.top <= UI_SIZES.TOP_SECTION_THRESHOLD
 
 					return (
 						<OpponentSeat
@@ -296,6 +319,53 @@ function HeroSeat({
 						<CardPlaceholder size={CARD_DISPLAY.SIZE_HERO} />
 					)}
 				</div>
+			</div>
+		</div>
+	)
+}
+
+interface HeroStackBubbleProps {
+	stackBB: number
+	position: string
+}
+
+/**
+ * Stack bubble for hero player - matches opponent bubble style.
+ */
+function HeroStackBubble({ stackBB, position }: HeroStackBubbleProps) {
+	const dropShadow = '4px 4px 3px 0px rgba(0, 0, 0, 0.35)'
+
+	return (
+		<div
+			className="relative rounded-[12px] border border-black
+								 border-solid box-border inline-flex
+								 justify-center items-center"
+			style={{
+				padding: 8,
+				gap: 8,
+				backgroundImage:
+					`url('data:image/svg+xml;utf8,<svg viewBox="0 0 171 76"` +
+					` xmlns="http://www.w3.org/2000/svg"` +
+					` preserveAspectRatio="none"><rect x="0" y="0"` +
+					` height="100%" width="100%" fill="url(%23grad)"` +
+					` opacity="1"/><defs><radialGradient id="grad"` +
+					` gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10"` +
+					` gradientTransform="matrix(5.2354e-16 3.8 -8.55` +
+					` 2.3268e-16 85.5 38)"><stop stop-color="rgba(237,88,62,1)"` +
+					` offset="0.51442"/><stop stop-color="rgba(203,73,51,1)"` +
+					` offset="1"/></radialGradient></defs></svg>')`,
+				boxShadow: dropShadow,
+			}}
+		>
+			<div
+				className="flex flex-col font-sf-compact justify-center
+									 leading-[normal] not-italic relative
+									 shrink-0 text-black text-center
+									 text-nowrap whitespace-pre"
+				style={{ fontSize: 24 }}
+			>
+				<p className="mb-0">{stackBB} BB</p>
+				<p>{position}</p>
 			</div>
 		</div>
 	)
