@@ -80,6 +80,47 @@ describe('BettingService', () => {
 
 			expect(player.isAllIn).toBe(true)
 		})
+
+		it('displays raise as "RAISE TO X BB" format', () => {
+			game.blinds = { small: 0.5, big: 1 }
+			game.lastBet = 1
+			game.minRaise = 1
+
+			handleRaise(game, player, 2)
+
+			expect(player.lastAction).toBe('RAISE TO 2 BB')
+		})
+
+		it('displays raise with decimal BBs correctly', () => {
+			game.blinds = { small: 0.5, big: 1 }
+			game.lastBet = 1
+			game.minRaise = 1
+
+			handleRaise(game, player, 2.5)
+
+			expect(player.lastAction).toBe('RAISE TO 2.5 BB')
+		})
+
+		it('rounds total BBs to one decimal place', () => {
+			game.blinds = { small: 0.5, big: 1 }
+			game.lastBet = 1
+			game.minRaise = 1
+
+			// Raise to 2.87 should display as 2.9 BB
+			handleRaise(game, player, 2.87)
+
+			expect(player.lastAction).toBe('RAISE TO 2.9 BB')
+		})
+
+		it('updates minRaise to raise size', () => {
+			game.lastBet = 2
+			game.minRaise = 1
+
+			handleRaise(game, player, 5)
+
+			// Raise size is 5 - 2 = 3
+			expect(game.minRaise).toBe(3)
+		})
 	})
 
 	describe('handleAllIn', () => {
@@ -90,6 +131,49 @@ describe('BettingService', () => {
 			expect(player.isAllIn).toBe(true)
 			expect(player.currentBet).toBe(100)
 			expect(game.pot).toBe(101.5)
+		})
+
+		it('updates minRaise correctly when all-in is a raise', () => {
+			game.lastBet = 10
+			game.minRaise = 5
+			player.stack = 30
+			player.currentBet = 0
+
+			handleAllIn(game, player)
+
+			// All-in amount is 30, last bet was 10
+			// Raise size is 30 - 10 = 20
+			expect(game.minRaise).toBe(20)
+			expect(game.lastBet).toBe(30)
+		})
+
+		it('does not update minRaise when all-in is below current bet', () => {
+			game.lastBet = 50
+			game.minRaise = 10
+			player.stack = 20
+			player.currentBet = 0
+
+			handleAllIn(game, player)
+
+			// All-in amount (20) is less than lastBet (50)
+			// Should not update minRaise or lastBet
+			expect(game.minRaise).toBe(10)
+			expect(game.lastBet).toBe(50)
+		})
+
+		it('correctly handles all-in when player has already bet', () => {
+			game.lastBet = 10
+			game.minRaise = 5
+			player.stack = 20
+			player.currentBet = 5
+
+			handleAllIn(game, player)
+
+			// Total all-in amount is stack + currentBet = 20 + 5 = 25
+			// Raise size is 25 - 10 = 15
+			expect(player.currentBet).toBe(25)
+			expect(game.minRaise).toBe(15)
+			expect(game.lastBet).toBe(25)
 		})
 	})
 

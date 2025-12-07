@@ -1,6 +1,6 @@
 /**
  * BetMarker component displays player actions and bets on the table.
- * Shows action text like CHECK, FOLD, RAISE X BB, or bet amounts.
+ * Shows action text like CHECK, FOLD, RAISE TO X BB, or bet amounts.
  */
 
 interface BetMarkerProps {
@@ -15,7 +15,7 @@ interface BetMarkerProps {
 /**
  * Formats action display text.
  * Backend sends action codes (CHECK, FOLD, CALL, SB, BB)
- * or formatted raises (RAISE X BB).
+ * or formatted raises (RAISE TO X BB).
  */
 function getActionDisplay(
 	lastAction: string | null,

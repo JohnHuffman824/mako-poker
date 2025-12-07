@@ -86,8 +86,8 @@ export function handleRaise(
 	game.lastBet = totalBet
 	player.currentBet = totalBet
 
-	const raiseBBs = Math.floor(raiseSize / game.blinds.big)
-	player.lastAction = `RAISE ${raiseBBs} BB`
+	const totalBBs = Math.round(totalBet / game.blinds.big * 10) / 10
+	player.lastAction = `RAISE TO ${totalBBs} BB`
 
 	if (player.stack === 0) {
 		player.isAllIn = true
@@ -112,7 +112,8 @@ export function handleAllIn(
 	}
 
 	if (allInAmount > (game.lastBet ?? 0)) {
-		game.minRaise = allInAmount + (allInAmount - (game.lastBet ?? 0))
+		const raiseSize = allInAmount - (game.lastBet ?? 0)
+		game.minRaise = raiseSize
 		game.lastBet = allInAmount
 	}
 

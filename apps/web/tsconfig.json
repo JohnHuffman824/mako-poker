@@ -23,6 +23,5 @@
 		},
 		"types": ["@types/bun"]
 	},
-	"include": ["src"],
-	"references": [{ "path": "./tsconfig.node.json" }]
+	"include": ["src", "dev.ts", "build.ts"]
 }

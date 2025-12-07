@@ -9,6 +9,17 @@ const AI_FOLD_PROBABILITY = 0.15
 const AI_CALL_PROBABILITY = 0.85
 
 /**
+ * Rounds a bet amount to the nearest 0.5 BB increment.
+ * This creates cleaner bet sizes (1 BB, 1.5 BB, 2 BB, etc.)
+ * instead of arbitrary decimals like 2.873 BB.
+ */
+function roundToHalfBB(amount: number, bigBlind: number): number {
+	const amountInBBs = amount / bigBlind
+	const roundedBBs = Math.round(amountInBBs * 2) / 2
+	return roundedBBs * bigBlind
+}
+
+/**
  * Context for AI decision making.
  */
 export interface ActionContext {
@@ -78,7 +89,7 @@ export class AIService {
 			throw new Error('Model not loaded or missing hole cards')
 		}
 
-		const { getBucket, AbstractAction } = await import('@mako/inference')
+		const { getBucket } = await import('@mako/inference')
 
 		const streetIndex = this.streetToIndex(context.street)
 		const bucket = getBucket(
@@ -181,15 +192,19 @@ export function determineAction(context: ActionContext): PlayerActionRequest {
 		pot
 	} = context
 
+	// Infer big blind from minRaise (typically equals BB)
+	const bigBlind = minRaise
+
 	// No bet to call - can check or bet
 	if (toCall <= 0) {
 		const roll = Math.random()
 		if (roll < AI_RAISE_PROBABILITY) {
 			// Bet roughly pot-sized (with some variance)
-			const betSize = Math.max(
+			const rawBetSize = Math.max(
 				minRaise * 2,
 				pot * (0.5 + Math.random() * 0.5)
 			)
+			const betSize = roundToHalfBB(rawBetSize, bigBlind)
 			return {
 				action: 'bet' as ActionType,
 				amount: Math.min(betSize, playerStack)
@@ -219,7 +234,8 @@ export function determineAction(context: ActionContext): PlayerActionRequest {
 	}
 
 	// Raise
-	const raiseSize = lastBet + minRaise + (minRaise * Math.random())
+	const rawRaiseSize = lastBet + minRaise + (minRaise * Math.random())
+	const raiseSize = roundToHalfBB(rawRaiseSize, bigBlind)
 	return {
 		action: 'raise' as ActionType,
 		amount: Math.min(raiseSize, playerStack + toCall)
