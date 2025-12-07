@@ -24,7 +24,7 @@
 // Design viewport dimensions
 const DESIGN_WIDTH = 1440
 const DESIGN_HEIGHT = 900
-const BOTTOM_BAR_HEIGHT = 130
+const BOTTOM_BAR_HEIGHT = 144
 
 export interface SeatPosition {
 	top: number
