@@ -154,7 +154,7 @@ function CardFace({
 				'0px_4px_6px_-4px_rgba(0,0,0,0.1)]',
 				className
 			)}
-			style={{ backgroundColor: bgColor }}
+			style={{ background: bgColor }}
 		>
 			{/* Rank - top-left corner with equal padding */}
 			<div

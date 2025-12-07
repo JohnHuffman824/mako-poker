@@ -24,18 +24,18 @@ export const SUIT_ICONS: Record<Suit, string> = {
 
 // Dual-tone color scheme (2 colors: dark blue for black suits, red for red suits)
 export const DUAL_TONE_COLORS: Record<Suit, string> = {
-	spades: '#2D3748',   // Dark blue-gray
-	hearts: '#DC2626',   // Red
-	clubs: '#2D3748',    // Dark blue-gray
-	diamonds: '#DC2626', // Red
+	spades: 'linear-gradient(135deg, #364153 0%, #101828 100%)',
+	hearts: 'linear-gradient(135deg, #FB2C36 0%, #C10007 100%)',
+	clubs: 'linear-gradient(135deg, #364153 0%, #101828 100%)',
+	diamonds: 'linear-gradient(135deg, #FB2C36 0%, #C10007 100%)',
 }
 
 // Quad-tone color scheme (4 colors: unique color per suit)
 export const QUAD_TONE_COLORS: Record<Suit, string> = {
-	spades: '#2D3748',   // Dark blue-gray
-	hearts: '#DC2626',   // Red
-	clubs: '#10B981',    // Teal/emerald
-	diamonds: '#F59E0B', // Amber/yellow
+	spades: 'linear-gradient(135deg, #364153 0%, #101828 100%)',
+	hearts: 'linear-gradient(135deg, #FB2C36 0%, #C10007 100%)',
+	clubs: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+	diamonds: 'linear-gradient(135deg, #FBBF24 0%, #FCD34D 100%)',
 }
 
 /**
