@@ -111,6 +111,7 @@ export function GamePage() {
 							isVisible={true}
 							isLoading={isLoading}
 							heroStack={heroStack}
+							bigBlind={game.blinds.big}
 							onFold={handleFold}
 							onCall={handleCall}
 							onRaise={handleRaise}

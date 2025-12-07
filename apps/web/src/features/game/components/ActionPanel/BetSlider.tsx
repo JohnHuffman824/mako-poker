@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { formatBB } from '../../utils'
 
 interface BetSliderProps {
 	value: number
@@ -58,7 +59,7 @@ function ValueDisplay({ value }: { value: number }) {
 	return (
 		<div className="text-center mb-3">
 			<span className="text-2xl font-bold text-white">
-				{value.toFixed(1)}
+				{formatBB(value)}
 			</span>
 			<span className="text-gray-400 ml-1">BB</span>
 		</div>
@@ -93,8 +94,8 @@ function Slider({
 function RangeLabels({ min, max }: { min: number; max: number }) {
 	return (
 		<div className="flex justify-between text-xs text-gray-500 mt-1 mb-3">
-			<span>{min.toFixed(1)} BB</span>
-			<span>{max.toFixed(1)} BB</span>
+			<span>{formatBB(min)} BB</span>
+			<span>{formatBB(max)} BB</span>
 		</div>
 	)
 }

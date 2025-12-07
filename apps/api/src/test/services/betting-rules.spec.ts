@@ -465,5 +465,53 @@ describe('BettingRules', () => {
 			expect(state.toCall).toBe(3.5)
 		})
 	})
+
+	describe('Betting display with various blind sizes', () => {
+		it('displays raise correctly when betting 4 chips with 1 BB', () => {
+			game = gameService.startGame(userId, {
+				playerCount: 3,
+				startingStack: 100,
+				smallBlind: 0.5,
+				bigBlind: 1
+			})
+			let state = gameService.dealHand(game.id)
+
+			// First player raises to 4
+			state = gameService.processAction(game.id, {
+				action: 'raise',
+				amount: 4
+			})
+
+			const raiser = state.players[0]
+			expect(raiser.lastAction).toBe('RAISE TO 4 BB')
+		})
+
+		it('displays raise correctly with non-standard blinds', () => {
+			game = gameService.startGame(userId, {
+				playerCount: 3,
+				startingStack: 100,
+				smallBlind: 0.57,
+				bigBlind: 1.14
+			})
+			let state = gameService.dealHand(game.id)
+
+			// First player raises to 4.56 chips (4 BB)
+			state = gameService.processAction(game.id, {
+				action: 'raise',
+				amount: 4.56
+			})
+
+			const raiser = state.players[0]
+			expect(raiser.lastAction).toBe('RAISE TO 4 BB')
+		})
+
+		it('displays minRaise as minimum total bet in chips', () => {
+			const state = setupGame(3)
+
+			// Pre-flop: lastBet = 1, minRaise should be 2 (1 + 1)
+			expect(state.minRaise).toBe(2)
+			expect(state.lastBet).toBe(1)
+		})
+	})
 })
 

@@ -41,16 +41,16 @@ export interface SeatPosition {
  * - Increase left = move right, decrease left = move left
  */
 export const ALL_SEAT_POSITIONS: SeatPosition[] = [
-	{ top: 628, left: 720 },   // 0: Hero (bottom center)
-	{ top: 628, left: 460 },   // 1: Bottom-left
-	{ top: 468, left: 282 },   // 2: Left-bottom
-	{ top: 268, left: 282 },   // 3: Left-top
-	{ top: 135, left: 460 },   // 4: Top-left
-	{ top: 135, left: 720 },   // 5: Top-center
-	{ top: 135, left: 980 },   // 6: Top-right
-	{ top: 268, left: 1158 },  // 7: Right-top
-	{ top: 468, left: 1158 },  // 8: Right-bottom
-	{ top: 628, left: 980 },   // 9: Bottom-right
+	{ top: 598, left: 720 },   // 0: Hero (bottom center)
+	{ top: 598, left: 460 },   // 1: Bottom-left
+	{ top: 438, left: 282 },   // 2: Left-bottom
+	{ top: 238, left: 282 },   // 3: Left-top
+	{ top: 105, left: 460 },   // 4: Top-left
+	{ top: 105, left: 720 },   // 5: Top-center
+	{ top: 105, left: 980 },   // 6: Top-right
+	{ top: 238, left: 1158 },  // 7: Right-top
+	{ top: 438, left: 1158 },  // 8: Right-bottom
+	{ top: 598, left: 980 },   // 9: Bottom-right
 ]
 
 export const TOTAL_SEATS = ALL_SEAT_POSITIONS.length
@@ -59,9 +59,10 @@ export const HERO_SEAT_INDEX = 0
 /**
  * Table center position in design pixels.
  * Centered in the available space excluding the bottom bar (144px).
+ * Adjusted up by 30 pixels.
  */
 export const TABLE_CENTER = {
-	top: (DESIGN_HEIGHT - BOTTOM_BAR_HEIGHT) / 2,
+	top: (DESIGN_HEIGHT - BOTTOM_BAR_HEIGHT) / 2 - 30,
 	left: DESIGN_WIDTH / 2,
 }
 
@@ -76,16 +77,16 @@ export const TABLE_CENTER = {
  * - Typical offset: 35-45% from player toward center
  */
 export const DEALER_BUTTON_POSITIONS: SeatPosition[] = [
-	{ top: 494, left: 720 },   // 0: Hero button position
-	{ top: 494, left: 520 },   // 1: Bottom-left button
-	{ top: 438, left: 410 },   // 2: Left-bottom button
-	{ top: 318, left: 410 },   // 3: Left-top button
-	{ top: 262, left: 520 },   // 4: Top-left button
-	{ top: 262, left: 720 },   // 5: Top-center button
-	{ top: 262, left: 920 },   // 6: Top-right button
-	{ top: 318, left: 1032 },  // 7: Right-top button
-	{ top: 438, left: 1032 },  // 8: Right-bottom button
-	{ top: 494, left: 920 },   // 9: Bottom-right button
+	{ top: 464, left: 720 },   // 0: Hero button position
+	{ top: 464, left: 520 },   // 1: Bottom-left button
+	{ top: 408, left: 410 },   // 2: Left-bottom button
+	{ top: 288, left: 410 },   // 3: Left-top button
+	{ top: 232, left: 520 },   // 4: Top-left button
+	{ top: 232, left: 720 },   // 5: Top-center button
+	{ top: 232, left: 920 },   // 6: Top-right button
+	{ top: 288, left: 1032 },  // 7: Right-top button
+	{ top: 408, left: 1032 },  // 8: Right-bottom button
+	{ top: 464, left: 920 },   // 9: Bottom-right button
 ]
 
 /**
@@ -110,16 +111,16 @@ export function getDealerButtonPosition(dealerSeatIndex: number): {
  * to avoid overlap with dealer button.
  */
 export const BET_MARKER_POSITIONS: SeatPosition[] = [
-	{ top: 465, left: 720 },   // 0: Hero - moved up 5px
-	{ top: 465, left: 555 },   // 1: Bottom-left - moved up 5px, right 5px
-	{ top: 418, left: 470 },   // 2: Left-bottom - moved up 5px, right 5px
-	{ top: 337, left: 470 },   // 3: Left-top - moved down 5px, right 5px
-	{ top: 293, left: 555 },   // 4: Top-left - moved down 5px, right 5px
-	{ top: 293, left: 720 },   // 5: Top-center - moved down 5px
-	{ top: 293, left: 885 },   // 6: Top-right - moved down 5px, left 5px
-	{ top: 335, left: 970 },   // 7: Right-top - moved down 5px, left 5px
-	{ top: 420, left: 970 },   // 8: Right-bottom - moved up 5px, left 5px
-	{ top: 465, left: 885 },   // 9: Bottom-right - moved up 5px, left 5px
+	{ top: 435, left: 720 },   // 0: Hero - moved up 5px
+	{ top: 435, left: 555 },   // 1: Bottom-left - moved up 5px, right 5px
+	{ top: 388, left: 470 },   // 2: Left-bottom - moved up 5px, right 5px
+	{ top: 307, left: 470 },   // 3: Left-top - moved down 5px, right 5px
+	{ top: 263, left: 555 },   // 4: Top-left - moved down 5px, right 5px
+	{ top: 263, left: 720 },   // 5: Top-center - moved down 5px
+	{ top: 263, left: 885 },   // 6: Top-right - moved down 5px, left 5px
+	{ top: 305, left: 970 },   // 7: Right-top - moved down 5px, left 5px
+	{ top: 390, left: 970 },   // 8: Right-bottom - moved up 5px, left 5px
+	{ top: 435, left: 885 },   // 9: Bottom-right - moved up 5px, left 5px
 ]
 
 /**
@@ -141,7 +142,7 @@ export function getBetMarkerPosition(seatIndex: number): {
  * Centered horizontally, positioned to avoid bet markers.
  */
 export const COMMUNITY_CARDS_POSITION = {
-	top: 395,
+	top: 365,
 	left: 720,
 }
 
@@ -150,7 +151,7 @@ export const COMMUNITY_CARDS_POSITION = {
  * Above community cards, centered horizontally.
  */
 export const POT_DISPLAY_POSITION = {
-	top: 330,
+	top: 300,
 	left: 720,
 }
 
@@ -159,7 +160,7 @@ export const POT_DISPLAY_POSITION = {
  * Displays "You win!" or "Seat X wins!" with hand description.
  */
 export const WINNER_ANNOUNCEMENT_POSITION = {
-	top: 330,
+	top: 300,
 	left: 720,
 }
 
@@ -168,6 +169,6 @@ export const WINNER_ANNOUNCEMENT_POSITION = {
  * Positioned below hero cards at bottom center.
  */
 export const HERO_STACK_POSITION = {
-	top: 720,
+	top: 708,
 	left: 720,
 }

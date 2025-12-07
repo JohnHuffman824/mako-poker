@@ -1,8 +1,10 @@
 import { cn } from '@/lib/utils'
+import { formatBB } from '../../utils'
 
 interface StatsBubbleProps {
 	stack: number
 	position: string
+	bigBlind: number
 	lastAction?: string | null
 	isActive?: boolean
 	isHero?: boolean
@@ -16,11 +18,14 @@ interface StatsBubbleProps {
 export function StatsBubble({
 	stack,
 	position,
+	bigBlind,
 	lastAction,
 	isActive = false,
 	isHero = false,
 	className,
 }: StatsBubbleProps) {
+	// Convert chips to BB for display
+	const stackBB = Math.round((stack / bigBlind) * 10) / 10
 	return (
 		<div
 			className={cn(
@@ -43,7 +48,7 @@ export function StatsBubble({
 				className="text-center justify-center text-black text-3xl
 									 font-normal font-['SF_Compact_Rounded']"
 			>
-				{stack.toFixed(0)} BB
+				{formatBB(stackBB)} BB
 				<br />
 				{position}
 				{lastAction && ` • ${lastAction}`}

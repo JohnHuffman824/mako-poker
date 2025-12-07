@@ -7,6 +7,7 @@ interface ActionPanelProps {
 	minRaise: number
 	maxRaise: number
 	pot: number
+	bigBlind: number
 	canRaise: boolean
 	isLoading: boolean
 	onFold: () => void
@@ -23,6 +24,7 @@ export function ActionPanel({
 	minRaise,
 	maxRaise,
 	pot,
+	bigBlind,
 	canRaise,
 	isLoading,
 	onFold,
@@ -71,6 +73,7 @@ export function ActionPanel({
 
 			<ActionButtons
 				toCall={toCall}
+				bigBlind={bigBlind}
 				canRaise={canRaise}
 				isRaiseMode={showSlider}
 				isLoading={isLoading}

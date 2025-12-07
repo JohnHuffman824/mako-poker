@@ -6,6 +6,7 @@ interface HandInfoProps {
 
 /**
  * Footer bar showing current street and blinds info.
+ * Displays blinds as chip amounts (not converted to BB).
  */
 export function HandInfo({ street, smallBlind, bigBlind }: HandInfoProps) {
 	return (
@@ -16,7 +17,7 @@ export function HandInfo({ street, smallBlind, bigBlind }: HandInfoProps) {
 			<span className="font-medium capitalize">{street}</span>
 			<span className="mx-3 text-gray-600">|</span>
 			<span className="text-gray-400">Blinds:</span>{' '}
-			<span className="font-medium">{smallBlind}/{bigBlind} BB</span>
+			<span className="font-medium">{smallBlind}/{bigBlind}</span>
 		</div>
 	)
 }

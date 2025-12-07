@@ -112,6 +112,58 @@ describe('BettingService', () => {
 			expect(player.lastAction).toBe('RAISE TO 2.9 BB')
 		})
 
+		it('displays correct BBs when no active bet exists', () => {
+			game.blinds = { small: 0.5, big: 1 }
+			game.lastBet = 0 // No active bet (e.g., first to act on flop)
+			game.minRaise = 1
+
+			// Bet 4 chips should display as 4 BB
+			handleRaise(game, player, 4)
+
+			expect(player.lastAction).toBe('RAISE TO 4 BB')
+			expect(game.lastBet).toBe(4)
+		})
+
+		it('displays correct BBs with player having posted blind', () => {
+			game.blinds = { small: 0.5, big: 1 }
+			game.lastBet = 1
+			game.minRaise = 1
+			player.currentBet = 0.5 // Player posted small blind
+
+			// Raise to 4 chips total should display as 4 BB
+			handleRaise(game, player, 4)
+
+			expect(player.lastAction).toBe('RAISE TO 4 BB')
+			expect(player.currentBet).toBe(4)
+			expect(player.stack).toBe(96.5) // 100 - 0.5 (already bet) - 3.5 (added)
+		})
+
+		it('displays correct BBs with non-standard big blind', () => {
+			game.blinds = { small: 0.57, big: 1.14 }
+			game.lastBet = 0
+			game.minRaise = 1.14
+			player.currentBet = 0
+
+			// Raise to 4.56 chips (4 BB) should display as 4 BB
+			handleRaise(game, player, 4.56)
+
+			expect(player.lastAction).toBe('RAISE TO 4 BB')
+			expect(game.lastBet).toBe(4.56)
+		})
+
+		it('displays 3.5 BB correctly when betting 3.99 chips with 1.14 BB', () => {
+			game.blinds = { small: 0.57, big: 1.14 }
+			game.lastBet = 0
+			game.minRaise = 1.14
+			player.currentBet = 0
+
+			// Raise to 3.99 chips = 3.5 BB (3.99 / 1.14 ≈ 3.5)
+			handleRaise(game, player, 3.99)
+
+			expect(player.lastAction).toBe('RAISE TO 3.5 BB')
+			expect(game.lastBet).toBe(3.99)
+		})
+
 		it('updates minRaise to raise size', () => {
 			game.lastBet = 2
 			game.minRaise = 1

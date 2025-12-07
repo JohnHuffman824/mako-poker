@@ -10,6 +10,7 @@ interface HeroSeatProps {
 	isFolded: boolean
 	currentBet: number
 	isCurrentTurn: boolean
+	bigBlind: number
 	style?: CSSProperties
 }
 
@@ -25,6 +26,7 @@ export function HeroSeat({
 	isFolded,
 	currentBet,
 	isCurrentTurn,
+	bigBlind,
 	style,
 }: HeroSeatProps) {
 	const hasCards = holeCards && holeCards.length > 0
@@ -41,6 +43,7 @@ export function HeroSeat({
 			<StatsBubble
 				stack={stack}
 				position={position}
+				bigBlind={bigBlind}
 				lastAction={lastAction}
 				isActive={isCurrentTurn}
 				isHero

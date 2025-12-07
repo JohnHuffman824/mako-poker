@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { formatBB } from '../../utils'
 
 interface BettingControlsProps {
 	toCall: number
@@ -8,6 +9,7 @@ interface BettingControlsProps {
 	isVisible: boolean
 	isLoading: boolean
 	heroStack: number
+	bigBlind: number
 	onFold: () => void
 	onCall: () => void
 	onRaise: (amount: number) => void
@@ -24,12 +26,15 @@ export function BettingControls({
 	isVisible,
 	isLoading,
 	heroStack,
+	bigBlind,
 	onFold,
 	onCall,
 	onRaise,
 }: BettingControlsProps) {
 	const [raiseAmount, setRaiseAmount] = useState(minRaise)
-	const [inputValue, setInputValue] = useState(minRaise.toFixed(0))
+	const [inputValue, setInputValue] = useState(
+		formatBB(minRaise / bigBlind)
+	)
 	const isCheck = toCall == 0
 
 	const sliderMin = minRaise
@@ -44,19 +49,33 @@ export function BettingControls({
 	)
 
 	/**
+	 * Converts chip amount to BB for display
+	 */
+	const chipsToBB = (chips: number): number => {
+		return Math.round((chips / bigBlind) * 10) / 10
+	}
+
+	/**
+	 * Converts BB input to chip amount
+	 */
+	const bbToChips = (bb: number): number => {
+		return bb * bigBlind
+	}
+
+	/**
 	 * Reset raise amount when minRaise changes (new betting round)
 	 */
 	useEffect(() => {
 		setRaiseAmount(minRaise)
-		setInputValue(minRaise.toFixed(0))
-	}, [minRaise])
+		setInputValue(formatBB(chipsToBB(minRaise)))
+	}, [minRaise, bigBlind])
 
 	/**
 	 * Updates both the slider and input when slider changes
 	 */
 	const handleSliderChange = (value: number) => {
 		setRaiseAmount(value)
-		setInputValue(value.toFixed(0))
+		setInputValue(formatBB(chipsToBB(value)))
 	}
 
 	/**
@@ -64,9 +83,10 @@ export function BettingControls({
 	 */
 	const handleInputChange = (value: string) => {
 		setInputValue(value)
-		const numValue = parseFloat(value)
-		if (!isNaN(numValue)) {
-			setRaiseAmount(clampValue(numValue))
+		const bbValue = parseFloat(value)
+		if (!isNaN(bbValue)) {
+			const chipValue = bbToChips(bbValue)
+			setRaiseAmount(clampValue(chipValue))
 		}
 	}
 
@@ -74,13 +94,14 @@ export function BettingControls({
 	 * Syncs input field on blur to ensure valid value
 	 */
 	const handleInputBlur = () => {
-		const numValue = parseFloat(inputValue)
-		if (isNaN(numValue)) {
-			setInputValue(raiseAmount.toFixed(0))
+		const bbValue = parseFloat(inputValue)
+		if (isNaN(bbValue)) {
+			setInputValue(formatBB(chipsToBB(raiseAmount)))
 		} else {
-			const clampedValue = clampValue(numValue)
+			const chipValue = bbToChips(bbValue)
+			const clampedValue = clampValue(chipValue)
 			setRaiseAmount(clampedValue)
-			setInputValue(clampedValue.toFixed(0))
+			setInputValue(formatBB(chipsToBB(clampedValue)))
 		}
 	}
 
@@ -89,8 +110,11 @@ export function BettingControls({
 	}
 
 	const handleRaise = () => {
-		onRaise(raiseAmount)
+		onRaise(raiseAmount) // Send chips to backend
 	}
+
+	// Convert toCall chips to BB for display
+	const toCallBB = Math.round((toCall / bigBlind) * 10) / 10
 
 	return (
 		<div
@@ -181,57 +205,45 @@ export function BettingControls({
 				<button
 					onClick={onFold}
 					disabled={isLoading}
-					className="w-24 h-11 relative bg-red-400 rounded-[10px]
+					className="w-24 h-11 bg-red-400 rounded-[10px]
 										 disabled:opacity-50 disabled:cursor-not-allowed
 										 hover:brightness-110 active:brightness-90
-										 transition-all"
+										 transition-all
+										 flex items-center justify-center
+										 text-gray-800 text-xl font-normal
+										 font-sf-compact leading-6"
 				>
-					<div
-						className="left-[30px] top-[9.50px] absolute
-									 text-center justify-start text-gray-800
-									 text-xl font-normal font-sf-compact
-									 leading-6"
-					>
-						Fold
-					</div>
+					Fold
 				</button>
 
 				{/* Check/Call button */}
 				<button
 					onClick={onCall}
 					disabled={isLoading}
-					className="w-28 h-11 relative bg-blue-400 rounded-[10px]
+					className="w-28 h-11 bg-blue-400 rounded-[10px]
 										 disabled:opacity-50 disabled:cursor-not-allowed
 										 hover:brightness-110 active:brightness-90
-										 transition-all"
+										 transition-all
+										 flex items-center justify-center
+										 text-gray-800 text-xl font-normal
+										 font-sf-compact leading-6"
 				>
-					<div
-						className="left-[29px] top-[9.50px] absolute
-									 text-center justify-start text-gray-800
-									 text-xl font-normal font-sf-compact
-									 leading-6"
-					>
-						{isCheck ? 'Check' : `Call ${toCall.toFixed(0)}`}
-					</div>
+					{isCheck ? 'Check' : `Call ${formatBB(toCallBB)}`}
 				</button>
 
 				{/* Raise button */}
 				<button
 					onClick={handleRaise}
 					disabled={isLoading}
-					className="w-20 h-11 relative bg-green-400 rounded-[10px]
+					className="w-20 h-11 bg-green-400 rounded-[10px]
 										 disabled:opacity-50 disabled:cursor-not-allowed
 										 hover:brightness-110 active:brightness-90
-										 transition-all"
+										 transition-all
+										 flex items-center justify-center
+										 text-gray-800 text-xl font-normal
+										 font-sf-compact leading-6"
 				>
-					<div
-						className="left-[31px] top-[9.50px] absolute
-									 text-center justify-start text-gray-800
-									 text-xl font-normal font-sf-compact
-									 leading-6"
-					>
-						{raiseAmount.toFixed(0)}x
-					</div>
+					{formatBB(chipsToBB(raiseAmount))}x
 				</button>
 			</div>
 		</div>

@@ -16,6 +16,7 @@ interface PlayerSeatProps {
 	isFolded: boolean
 	currentBet: number
 	isCurrentTurn: boolean
+	bigBlind: number
 	isTopPosition?: boolean
 	style?: CSSProperties
 }
@@ -33,6 +34,7 @@ export function PlayerSeat({
 	isFolded,
 	currentBet,
 	isCurrentTurn,
+	bigBlind,
 	isTopPosition = false,
 	style,
 }: PlayerSeatProps) {
@@ -71,6 +73,7 @@ export function PlayerSeat({
 			<StatsBubble
 				stack={stack}
 				position={position}
+				bigBlind={bigBlind}
 				lastAction={lastAction}
 				isActive={isCurrentTurn}
 			/>
@@ -81,6 +84,7 @@ export function PlayerSeat({
 					<StatsBubble
 						stack={stack}
 						position={position}
+						bigBlind={bigBlind}
 						lastAction={lastAction}
 						isActive={isCurrentTurn}
 					/>

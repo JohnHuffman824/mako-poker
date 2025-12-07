@@ -112,7 +112,7 @@ export function PokerTable({
 						left: POT_DISPLAY_POSITION.left,
 					}}
 				>
-					<PotDisplay pot={game.pot} />
+					<PotDisplay pot={game.pot} bigBlind={game.blinds.big} />
 				</div>
 			)}
 

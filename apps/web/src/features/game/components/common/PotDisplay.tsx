@@ -1,5 +1,8 @@
+import { formatBB } from '../../utils'
+
 interface PotDisplayProps {
 	pot: number
+	bigBlind: number
 }
 
 /**
@@ -7,8 +10,11 @@ interface PotDisplayProps {
  * Positioned by parent container.
  * Uses SF Compact Rounded font matching game design.
  */
-export function PotDisplay({ pot }: PotDisplayProps) {
+export function PotDisplay({ pot, bigBlind }: PotDisplayProps) {
 	if (pot == 0) return null
+
+	// Convert chips to BB for display
+	const potBB = Math.round((pot / bigBlind) * 10) / 10
 
 	return (
 		<div
@@ -24,7 +30,7 @@ export function PotDisplay({ pot }: PotDisplayProps) {
 			}}
 		>
 			<span className="text-amber-400">Pot:</span>{' '}
-			<span>{pot.toFixed(1)} BB</span>
+			<span>{formatBB(potBB)} BB</span>
 		</div>
 	)
 }

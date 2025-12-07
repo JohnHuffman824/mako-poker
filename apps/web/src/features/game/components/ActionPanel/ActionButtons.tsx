@@ -1,7 +1,9 @@
 import { cn } from '@/lib/utils'
+import { formatBB } from '../../utils'
 
 interface ActionButtonsProps {
 	toCall: number
+	bigBlind: number
 	canRaise: boolean
 	isRaiseMode: boolean
 	isLoading: boolean
@@ -16,6 +18,7 @@ interface ActionButtonsProps {
  */
 export function ActionButtons({
 	toCall,
+	bigBlind,
 	canRaise,
 	isRaiseMode,
 	isLoading,
@@ -24,13 +27,15 @@ export function ActionButtons({
 	onRaiseClick,
 }: ActionButtonsProps) {
 	const isCheck = toCall == 0
+	// Convert chips to BB for display
+	const toCallBB = Math.round((toCall / bigBlind) * 10) / 10
 
 	return (
 		<div className="flex gap-2">
 			<FoldButton onClick={onFold} disabled={isLoading} />
 			<CallButton
 				isCheck={isCheck}
-				toCall={toCall}
+				toCallBB={toCallBB}
 				onClick={onCall}
 				disabled={isLoading}
 			/>
@@ -71,12 +76,12 @@ function FoldButton({
 
 function CallButton({
 	isCheck,
-	toCall,
+	toCallBB,
 	onClick,
 	disabled,
 }: {
 	isCheck: boolean
-	toCall: number
+	toCallBB: number
 	onClick: () => void
 	disabled: boolean
 }) {
@@ -92,7 +97,7 @@ function CallButton({
 				'min-w-[100px]'
 			)}
 		>
-			{isCheck ? 'CHECK' : `CALL ${toCall.toFixed(1)}`}
+			{isCheck ? 'CHECK' : `CALL ${formatBB(toCallBB)}`}
 		</button>
 	)
 }

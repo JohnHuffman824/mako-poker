@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { formatBB } from '../../utils'
 
 interface BetChipProps {
 	amount: number
@@ -20,7 +21,7 @@ export function BetChip({ amount, isHero = false, className }: BetChipProps) {
 				className
 			)}
 		>
-			{amount.toFixed(1)} BB
+			{formatBB(amount)} BB
 		</div>
 	)
 }
