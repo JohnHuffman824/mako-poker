@@ -20,6 +20,7 @@ from ..game.action import Action
 from ..abstraction.hand_bucketing import HandBucketing
 from ..abstraction.action_abstraction import ActionAbstraction
 from ..training.value_network import PokerValueNetwork, ReservoirBuffer
+from ..training.onnx_export import export_deep_cfr_models
 
 
 class DeepCFR:
@@ -436,4 +437,22 @@ class DeepCFR:
 
 		self.strategy_network.load_state_dict(checkpoint['strategy_network'])
 		self._iteration = checkpoint['iteration']
+
+	def export_to_onnx(self, output_dir: str) -> dict[str, str]:
+		"""
+		Export trained models to ONNX format for TypeScript inference.
+
+		Args:
+			output_dir: Directory to save ONNX models
+
+		Returns:
+			Dictionary mapping model names to file paths
+		"""
+
+		return export_deep_cfr_models(
+			value_networks=self.value_networks,
+			strategy_network=self.strategy_network,
+			output_dir=output_dir,
+			iteration=self._iteration
+		)
 

@@ -6,6 +6,7 @@ Usage:
 	python -m src.cli train --solver kuhn --iterations 100000
 	python -m src.cli train --solver tabular --iterations 10000
 	python -m src.cli train --solver deep --iterations 100
+	python -m src.cli export --model checkpoints/deep_cfr_model.pt --output models/
 """
 
 import argparse
@@ -59,6 +60,11 @@ def main():
 		default=200,
 		help='Starting stack'
 	)
+	train_parser.add_argument(
+		'--export-onnx',
+		action='store_true',
+		help='Export to ONNX after training (Deep CFR only)'
+	)
 
 	# Validate command
 	validate_parser = subparsers.add_parser(
@@ -70,6 +76,30 @@ def main():
 		type=int,
 		default=100000,
 		help='Training iterations before validation'
+	)
+
+	# Export command
+	export_parser = subparsers.add_parser(
+		'export',
+		help='Export trained model to ONNX'
+	)
+	export_parser.add_argument(
+		'--model',
+		type=str,
+		required=True,
+		help='Path to trained PyTorch model (.pt file)'
+	)
+	export_parser.add_argument(
+		'--output',
+		type=str,
+		default='models',
+		help='Output directory for ONNX files'
+	)
+	export_parser.add_argument(
+		'--device',
+		type=str,
+		default='cpu',
+		help='Device to load model on'
 	)
 
 	args = parser.parse_args()
@@ -85,11 +115,39 @@ def main():
 		results = trainer.train(iterations=args.iterations)
 		print(f'\nTraining complete: {results}')
 
+		# Export to ONNX if requested (Deep CFR only)
+		if args.export_onnx and args.solver == 'deep':
+			print('\nExporting to ONNX...')
+			exported = trainer.solver.export_to_onnx(args.output)
+			print(f'Exported models: {list(exported.keys())}')
+
 	elif args.command == 'validate':
 		trainer = create_cfr_trainer(solver_type='kuhn')
 		trainer.train(iterations=args.iterations)
 		results = trainer.validate_kuhn()
 		print(f'\nValidation results: {results}')
+
+	elif args.command == 'export':
+		from .cfr.deep_cfr import DeepCFR
+		from .training.onnx_export import verify_onnx_model, test_onnx_inference
+
+		print(f'Loading model from {args.model}...')
+		solver = DeepCFR(device=args.device)
+		solver.load(args.model)
+
+		print(f'Exporting to {args.output}...')
+		exported = solver.export_to_onnx(args.output)
+
+		# Verify exported models
+		print('\nVerifying exported models...')
+		for name, path in exported.items():
+			if path.endswith('.onnx'):
+				is_valid = verify_onnx_model(path)
+				if is_valid:
+					test_onnx_inference(path)
+
+		print(f'\nExport complete! Models saved to {args.output}')
+		print('Use strategy_network_latest.onnx for TypeScript inference.')
 
 	else:
 		parser.print_help()

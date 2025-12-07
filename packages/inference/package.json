@@ -1,0 +1,29 @@
+{
+	"name": "@mako/inference",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": {
+			"import": "./src/index.ts",
+			"types": "./src/index.ts"
+		}
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"onnxruntime-node": "^1.16.0"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"typescript": "^5.0.4"
+	},
+	"peerDependencies": {
+		"@mako/shared": "workspace:*"
+	}
+}
+
+

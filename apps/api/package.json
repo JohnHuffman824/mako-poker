@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@mako/shared": "workspace:*",
+		"@mako/inference": "workspace:*",
 		"@elysiajs/cors": "^1.1.1",
 		"@elysiajs/jwt": "^1.1.1",
 		"drizzle-orm": "^0.36.1",

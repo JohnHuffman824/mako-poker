@@ -261,6 +261,27 @@ class GameState:
 			self._showdown()
 		else:
 			self.street = next_street
+			# Deal community cards for the new street
+			self._deal_street_cards(next_street)
+
+	def _deal_street_cards(self, street: 'Street') -> None:
+		"""Deal community cards for a street."""
+		from .deck import Deck
+
+		# Determine how many cards should be on board after this street
+		target_cards = {
+			Street.FLOP: 3,
+			Street.TURN: 4,
+			Street.RIVER: 5
+		}.get(street, 0)
+
+		cards_needed = target_cards - len(self.community_cards)
+		if cards_needed > 0:
+			# Create deck excluding known cards
+			excluded = list(self.hole_cards[0]) + list(self.hole_cards[1])
+			excluded += self.community_cards
+			deck = Deck(exclude=excluded).shuffle()
+			self.community_cards = self.community_cards + deck.deal(cards_needed)
 
 	def _run_out_board(self) -> None:
 		"""Run out remaining community cards and go to showdown."""

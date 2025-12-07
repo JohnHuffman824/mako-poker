@@ -1,7 +1,7 @@
-import type { PlayerActionRequest, ActionType } from '@mako/shared'
+import type { PlayerActionRequest, ActionType, Card } from '@mako/shared'
 
 /**
- * AI probability constants.
+ * AI probability constants for fallback behavior.
  */
 const AI_RAISE_PROBABILITY = 0.2
 const AI_ALLIN_CALL_PROBABILITY = 0.6
@@ -19,11 +19,158 @@ export interface ActionContext {
 	pot: number
 	street: string
 	position: string
+	holeCards?: Card[]
+	communityCards?: Card[]
 }
 
 /**
- * Determines AI action based on game context.
- * Uses simple probability-based decision making.
+ * AI Service for poker decision making.
+ *
+ * Supports two modes:
+ * 1. ONNX inference using trained Deep CFR models (when available)
+ * 2. Fallback probability-based decisions (when no model loaded)
+ *
+ * Usage:
+ *   // With trained model (production)
+ *   const ai = new AIService()
+ *   await ai.loadModel('path/to/strategy_network_latest.onnx')
+ *   const action = await ai.determineAction(context)
+ *
+ *   // Without model (development/testing)
+ *   const action = determineAction(context)  // uses fallback
+ */
+export class AIService {
+	private model: import('@mako/inference').StrategyModel | null = null
+
+	/**
+	 * Load an ONNX model for GTO-based decisions.
+	 */
+	async loadModel(modelPath: string): Promise<void> {
+		const { StrategyModel } = await import('@mako/inference')
+		this.model = new StrategyModel({ modelPath })
+		await this.model.initialize()
+	}
+
+	/**
+	 * Check if a trained model is loaded.
+	 */
+	isModelLoaded(): boolean {
+		return this.model?.isReady() ?? false
+	}
+
+	/**
+	 * Determine action using loaded model or fallback.
+	 */
+	async getAction(context: ActionContext): Promise<PlayerActionRequest> {
+		if (this.model && context.holeCards) {
+			return this.getModelAction(context)
+		}
+		return determineAction(context)
+	}
+
+	/**
+	 * Get action from ONNX model.
+	 */
+	private async getModelAction(
+		context: ActionContext
+	): Promise<PlayerActionRequest> {
+		if (!this.model || !context.holeCards) {
+			throw new Error('Model not loaded or missing hole cards')
+		}
+
+		const { getBucket, AbstractAction } = await import('@mako/inference')
+
+		const streetIndex = this.streetToIndex(context.street)
+		const bucket = getBucket(
+			context.holeCards,
+			context.communityCards ?? []
+		)
+
+		const totalChips = context.playerStack + context.pot
+		const input = {
+			bucket,
+			street: streetIndex,
+			potFeatures: [
+				context.pot / totalChips,
+				context.playerStack / totalChips,
+				context.playerStack / totalChips,
+				context.toCall / Math.max(1, context.pot)
+			] as [number, number, number, number],
+			actionHistory: []
+		}
+
+		const recommendation = await this.model.sampleAction(
+			input,
+			context.pot,
+			context.playerStack
+		)
+
+		return this.convertAction(recommendation, context)
+	}
+
+	/**
+	 * Convert abstract action to concrete PlayerActionRequest.
+	 */
+	private async convertAction(
+		rec: import('@mako/inference').ActionRecommendation,
+		context: ActionContext
+	): Promise<PlayerActionRequest> {
+		const { AbstractAction } = await import('@mako/inference')
+
+		switch (rec.action) {
+			case AbstractAction.FOLD:
+				return { action: 'fold' as ActionType }
+			case AbstractAction.CHECK:
+				return { action: 'check' as ActionType }
+			case AbstractAction.CALL:
+				return { action: 'call' as ActionType }
+			case AbstractAction.ALL_IN:
+				return { action: 'allin' as ActionType }
+			case AbstractAction.BET_HALF_POT:
+			case AbstractAction.BET_POT:
+			case AbstractAction.BET_2X_POT:
+				if (context.toCall <= 0) {
+					return {
+						action: 'bet' as ActionType,
+						amount: rec.amount ?? context.minRaise
+					}
+				}
+				return {
+					action: 'raise' as ActionType,
+					amount: rec.amount ?? context.lastBet + context.minRaise
+				}
+			default:
+				return { action: 'check' as ActionType }
+		}
+	}
+
+	/**
+	 * Convert street string to index.
+	 */
+	private streetToIndex(street: string): number {
+		switch (street) {
+			case 'preflop': return 0
+			case 'flop': return 1
+			case 'turn': return 2
+			case 'river': return 3
+			default: return 0
+		}
+	}
+
+	/**
+	 * Clean up resources.
+	 */
+	async dispose(): Promise<void> {
+		if (this.model) {
+			await this.model.dispose()
+			this.model = null
+		}
+	}
+}
+
+/**
+ * Fallback: Determines AI action based on simple probabilities.
+ * Used when no trained model is available.
  */
 export function determineAction(context: ActionContext): PlayerActionRequest {
 	const {

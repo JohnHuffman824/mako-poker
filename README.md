@@ -4,14 +4,20 @@ A GTO (Game Theory Optimal) poker training application with a Bun/TypeScript bac
 
 ## Architecture
 
+This project uses a **hybrid ONNX architecture** where:
+- **Training** is done in Python (leveraging PyTorch for neural networks)
+- **Inference** is done in TypeScript (using ONNX Runtime for production)
+- **Game logic** lives in TypeScript (single source of truth)
+
 ```
 mako-poker/
 ├── apps/
 │   ├── web/                    # React frontend (Vite + Tailwind)
 │   └── api/                    # Elysia backend (Bun)
 ├── packages/
-│   └── shared/                 # Shared types and utilities
-├── solver/                     # Python CFR solver (FastAPI)
+│   ├── shared/                 # Shared types and utilities
+│   └── inference/              # ONNX model inference (TypeScript)
+├── solver/                     # Python CFR solver (training only)
 ├── docker-compose.yml          # PostgreSQL database
 ├── package.json                # Bun workspace root
 └── tsconfig.json               # Base TypeScript config
@@ -137,12 +143,36 @@ Shared TypeScript types and utilities:
 - Card utilities (`rankValue()`, `suitSymbol()`, `formatCardDisplay()`)
 - Action constants (`ACTION_FOLD`, `ACTION_CALL`, etc.)
 
-### solver
+### solver (Training Only)
 
-Python CFR solver:
-- Deep CFR implementation
-- FastAPI for HTTP interface
-- PyTorch for neural networks
+Python CFR solver for offline training:
+- Deep CFR implementation with PyTorch
+- ONNX export for TypeScript inference
+- No runtime dependency in production
+
+**Training a model:**
+
+```bash
+cd solver
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+
+# Train and export
+python -c "
+from src.cfr.deep_cfr import DeepCFR
+solver = DeepCFR()
+solver.train(iterations=10000)
+solver.export_to_onnx('models/')
+"
+```
+
+### packages/inference
+
+TypeScript ONNX inference:
+- Loads trained models exported from Python
+- Uses ONNX Runtime for fast inference
+- Provides GTO strategy recommendations
 
 ## API Endpoints
 
