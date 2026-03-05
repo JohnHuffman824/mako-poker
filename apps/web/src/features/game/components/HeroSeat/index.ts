@@ -1,2 +1,0 @@
-export { HeroSeat } from './HeroSeat'
-

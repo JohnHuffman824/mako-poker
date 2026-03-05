@@ -1,29 +1,4 @@
 /**
- * Game configuration constants.
- */
-export const GAME_DEFAULTS = {
-	PLAYER_COUNT: 6,
-	STARTING_STACK: 100,
-	SMALL_BLIND: 0.5,
-	BIG_BLIND: 1,
-	MIN_PLAYERS: 2,
-	MAX_PLAYERS: 10,
-	MIN_BLIND: 1,
-	MAX_BLIND: 100,
-	BLIND_INCREMENT: 1,
-	HERO_SEAT_INDEX: 0
-} as const
-
-/**
- * Timing constants for game flow.
- */
-export const TIMING = {
-	AI_ACTION_DELAY_MS: 500,
-	AUTO_DEAL_DELAY_MS: 2000,
-	MAX_AI_ITERATIONS: 20
-} as const
-
-/**
  * Position assignments for different table sizes.
  */
 export const POSITION_NAMES: Record<number, string[]> = {

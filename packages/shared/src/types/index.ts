@@ -26,25 +26,6 @@ export {
 	ACTION_ALL_IN
 } from './player'
 
-// Game state types
-export type {
-	GameState,
-	Blinds,
-	SidePot,
-	Street,
-	AvailableActions,
-	StartGameRequest,
-	PlayerActionRequest,
-	UpdateBlindsRequest
-} from './game'
-export {
-	STREET_PREFLOP,
-	STREET_FLOP,
-	STREET_TURN,
-	STREET_RIVER,
-	STREET_SHOWDOWN
-} from './game'
-
 // Hand evaluation types
 export type { HandResult } from './hand'
 export {
