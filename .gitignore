@@ -19,11 +19,10 @@ ehthumbs.db
 # Node / Bun dependencies
 node_modules/
 
-# Frontend - Build (apps/web)
-apps/web/dist/
-apps/web/.cache/
-apps/web/coverage/
-apps/web/build/
+# Build artifacts
+dist/
+.cache/
+build/
 
 # Environment files
 .env
