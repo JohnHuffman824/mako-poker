@@ -65,6 +65,28 @@ export const preflopRanges = pgTable('preflop_ranges', {
 ])
 
 /**
+ * Session presets — saved game context for repeat queries.
+ * Only one preset per user can be active at a time.
+ */
+export const sessionPresets = pgTable('session_presets', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	name: varchar('name', { length: 100 }).notNull(),
+	gameType: varchar('game_type', { length: 20 }).notNull(),
+	tableSize: varchar('table_size', { length: 10 }).notNull(),
+	defaultStackBb: integer('default_stack_bb'),
+	isActive: boolean('is_active').notNull().default(false),
+	createdAt: timestamp('created_at', { withTimezone: true })
+		.defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true })
+		.defaultNow()
+}, (table) => [
+	index('idx_session_presets_user').on(table.userId)
+])
+
+/**
  * Push/fold charts - short-stack shove-or-fold ranges.
  * Each row represents a push/fold chart for a position/stack/table.
  */

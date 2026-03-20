@@ -50,6 +50,10 @@ export default function RootLayout() {
             presentation: 'modal',
           }}
         />
+        <Stack.Screen
+          name="settings"
+          options={{ title: 'Settings' }}
+        />
       </Stack>
       <StatusBar style="light" />
     </View>

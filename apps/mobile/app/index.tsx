@@ -6,9 +6,11 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Stack, router } from 'expo-router'
 import ChatInput from '../src/components/ChatInput'
 import ChatMessage from '../src/components/ChatMessage'
 import type { Message } from '../src/components/ChatMessage'
@@ -60,6 +62,17 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push('/settings')}
+            >
+              <Text style={styles.settingsLink}>Settings</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -119,6 +132,10 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  settingsLink: {
+    color: '#3b82f6',
+    fontSize: 15,
   },
   empty: {
     flex: 1,
