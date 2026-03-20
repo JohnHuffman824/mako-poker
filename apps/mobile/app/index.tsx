@@ -38,6 +38,7 @@ export default function ChatScreen() {
         content: response.answer,
         confidence: response.confidence,
         responseTimeMs: response.responseTimeMs,
+        toolsUsed: response.toolsUsed,
       }
       setMessages((prev) => [...prev, assistantMessage])
     } catch (err) {

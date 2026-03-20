@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
+import ResponseCard from './ResponseCard'
 
 export interface Message {
   id: string
@@ -6,16 +7,11 @@ export interface Message {
   content: string
   confidence?: 'high' | 'medium' | 'low'
   responseTimeMs?: number
+  toolsUsed?: string[]
 }
 
 interface ChatMessageProps {
   message: Message
-}
-
-const CONFIDENCE_COLORS: Record<string, string> = {
-  high: '#22c55e',
-  medium: '#eab308',
-  low: '#ef4444',
 }
 
 export default function ChatMessage({ message }: ChatMessageProps) {
@@ -28,42 +24,17 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         isUser ? styles.userContainer : styles.assistantContainer,
       ]}
     >
-      <View
-        style={[
-          styles.bubble,
-          isUser ? styles.userBubble : styles.assistantBubble,
-        ]}
-      >
-        <Text
-          style={[
-            styles.text,
-            isUser ? styles.userText : styles.assistantText,
-          ]}
-        >
-          {message.content}
-        </Text>
-      </View>
-      {!isUser && message.confidence && (
-        <View style={styles.meta}>
-          <View
-            style={[
-              styles.confidenceDot,
-              {
-                backgroundColor:
-                  CONFIDENCE_COLORS[message.confidence],
-              },
-            ]}
-          />
-          <Text style={styles.metaText}>
-            {message.confidence} confidence
-          </Text>
-          {message.responseTimeMs != null && (
-            <Text style={styles.metaText}>
-              {' '}
-              &middot; {(message.responseTimeMs / 1000).toFixed(1)}s
-            </Text>
-          )}
+      {isUser ? (
+        <View style={styles.userBubble}>
+          <Text style={styles.userText}>{message.content}</Text>
         </View>
+      ) : (
+        <ResponseCard
+          answer={message.content}
+          confidence={message.confidence ?? 'high'}
+          responseTimeMs={message.responseTimeMs}
+          toolsUsed={message.toolsUsed}
+        />
       )}
     </View>
   )
@@ -80,44 +51,17 @@ const styles = StyleSheet.create({
   assistantContainer: {
     alignItems: 'flex-start',
   },
-  bubble: {
+  userBubble: {
     maxWidth: '85%',
+    backgroundColor: '#3b82f6',
     borderRadius: 16,
+    borderBottomRightRadius: 4,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  userBubble: {
-    backgroundColor: '#3b82f6',
-    borderBottomRightRadius: 4,
-  },
-  assistantBubble: {
-    backgroundColor: '#1e293b',
-    borderBottomLeftRadius: 4,
-  },
-  text: {
+  userText: {
     fontSize: 16,
     lineHeight: 22,
-  },
-  userText: {
     color: '#f8fafc',
-  },
-  assistantText: {
-    color: '#e2e8f0',
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    paddingLeft: 4,
-  },
-  confidenceDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 4,
-  },
-  metaText: {
-    fontSize: 12,
-    color: '#64748b',
   },
 })
