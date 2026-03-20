@@ -22,6 +22,7 @@ export const app = new Elysia()
 	.use(queryRoutes)
 	.listen(process.env.PORT ?? 8080)
 
-console.log(
-	`🦈 Mako API running at http://${app.server?.hostname}:${app.server?.port}`
+process.stdout.write(
+	`Mako API running at ` +
+	`http://${app.server?.hostname}:${app.server?.port}\n`
 )

@@ -25,70 +25,85 @@ export interface QueryResponse {
 	responseTimeMs: number
 }
 
+/** Claude gets 5 rounds of tool use before we stop */
 const MAX_TOOL_ROUNDS = 5
 
 export async function handleQuery(
-	question: string,
-	presetContext?: string
+	question: string
 ): Promise<QueryResponse> {
 	const start = Date.now()
-	const toolsUsed: string[] = []
-	let totalTokens = 0
-	let confidence: 'high' | 'medium' | 'low' = 'high'
+	const state = {
+		toolsUsed: [] as string[],
+		totalTokens: 0,
+		confidence: 'high' as 'high' | 'medium' | 'low',
+	}
 
 	const messages: MessageParam[] = [
 		{ role: 'user', content: question },
 	]
 
 	for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-		const response = await claude.messages.create({
-			model: MODEL,
-			max_tokens: 1024,
-			system: buildSystemPrompt(presetContext),
-			tools: gtoTools,
-			messages,
-		})
-
-		totalTokens +=
-			response.usage.input_tokens +
-			response.usage.output_tokens
+		const response = await callClaude(messages)
+		accumulateTokens(state, response)
 
 		if (response.stop_reason != 'tool_use') {
-			return {
-				answer: extractText(response.content),
-				confidence,
-				toolsUsed,
-				tokensUsed: totalTokens,
-				responseTimeMs: Date.now() - start,
-			}
+			return buildResponse(
+				extractText(response.content),
+				state, start
+			)
 		}
 
-		// Process tool calls
 		const toolResults = await processToolCalls(
-			response.content, toolsUsed
+			response.content, state
 		)
-
-		// Check if any tool returned interpolated data
-		for (const result of toolResults) {
-			const content = result.content as string
-			if (content.includes('"medium"') ||
-				content.includes('"interpolated"')) {
-				confidence = 'medium'
-			}
-		}
-
-		// Add assistant message + tool results to conversation
-		messages.push({ role: 'assistant', content: response.content })
+		messages.push({
+			role: 'assistant', content: response.content,
+		})
 		messages.push({ role: 'user', content: toolResults })
 	}
 
-	// Exhausted tool rounds — return what we have
+	return buildResponse(
+		'I was unable to complete the analysis. ' +
+		'Please try a simpler question.',
+		{ ...state, confidence: 'low' }, start
+	)
+}
+
+async function callClaude(
+	messages: MessageParam[]
+): Promise<Anthropic.Message> {
+	return await claude.messages.create({
+		model: MODEL,
+		max_tokens: 1024,
+		system: buildSystemPrompt(),
+		tools: gtoTools,
+		messages,
+	})
+}
+
+function accumulateTokens(
+	state: { totalTokens: number },
+	response: Anthropic.Message
+): void {
+	state.totalTokens +=
+		response.usage.input_tokens +
+		response.usage.output_tokens
+}
+
+function buildResponse(
+	answer: string,
+	state: {
+		confidence: 'high' | 'medium' | 'low'
+		toolsUsed: string[]
+		totalTokens: number
+	},
+	start: number
+): QueryResponse {
 	return {
-		answer: 'I was unable to complete the analysis. ' +
-			'Please try a simpler question.',
-		confidence: 'low',
-		toolsUsed,
-		tokensUsed: totalTokens,
+		answer,
+		confidence: state.confidence,
+		toolsUsed: state.toolsUsed,
+		tokensUsed: state.totalTokens,
 		responseTimeMs: Date.now() - start,
 	}
 }
@@ -96,33 +111,36 @@ export async function handleQuery(
 function extractText(
 	content: Anthropic.ContentBlock[]
 ): string {
-	return content
-		.filter((block) => block.type == 'text')
-		.map((block) => {
-			if (block.type == 'text') return block.text
-			return ''
-		})
-		.join('\n')
+	const texts: string[] = []
+	for (const block of content) {
+		if (block.type == 'text') texts.push(block.text)
+	}
+	return texts.join('\n')
 }
 
 async function processToolCalls(
 	content: Anthropic.ContentBlock[],
-	toolsUsed: string[]
+	state: { toolsUsed: string[]; confidence: string }
 ): Promise<ToolResultBlockParam[]> {
 	const results: ToolResultBlockParam[] = []
 
 	for (const block of content) {
 		if (block.type != 'tool_use') continue
 
-		toolsUsed.push(block.name)
+		state.toolsUsed.push(block.name)
 		const result = await executeTool(
 			block.name, block.input as Record<string, unknown>
 		)
 
+		const json = JSON.stringify(result)
+		if (json.includes('"interpolated"')) {
+			state.confidence = 'medium'
+		}
+
 		results.push({
 			type: 'tool_result',
 			tool_use_id: block.id,
-			content: JSON.stringify(result),
+			content: json,
 		})
 	}
 
@@ -159,8 +177,6 @@ async function executeTool(
 			)
 
 		default:
-			return {
-				error: `Unknown tool: ${name}`,
-			}
+			return { error: `Unknown tool: ${name}` }
 	}
 }

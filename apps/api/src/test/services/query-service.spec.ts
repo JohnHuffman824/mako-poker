@@ -23,11 +23,9 @@ const { handleQuery } = await import(
 	'../../services/query-service'
 )
 
-/**
- * Build a mock Message response. Uses partial types since
- * the SDK has many fields we don't need for testing.
- */
-function textResponse(text: string): Partial<Anthropic.Message> {
+function textResponse(
+	text: string
+): Partial<Anthropic.Message> {
 	return {
 		id: 'msg_test',
 		type: 'message',
@@ -36,7 +34,6 @@ function textResponse(text: string): Partial<Anthropic.Message> {
 		content: [{ type: 'text', text } as never],
 		stop_reason: 'end_turn',
 		stop_sequence: null,
-		container: null,
 		usage: {
 			input_tokens: 100,
 			output_tokens: 50,
@@ -61,7 +58,6 @@ function toolUseResponse(
 		} as never],
 		stop_reason: 'tool_use',
 		stop_sequence: null,
-		container: null,
 		usage: {
 			input_tokens: 100,
 			output_tokens: 30,
@@ -111,7 +107,7 @@ describe('QueryService', () => {
 			)
 
 			const result = await handleQuery(
-				'Should I open AKs from the CO at 100BB 6max?'
+				'Should I open AKs from CO at 100BB 6max?'
 			)
 
 			expect(result.answer).toBe(
@@ -134,9 +130,7 @@ describe('QueryService', () => {
 					})
 				)
 				mockCreate.mockResolvedValueOnce(
-					textResponse(
-						'Here is the BTN opening range.'
-					)
+					textResponse('Here is the BTN range.')
 				)
 
 				const result = await handleQuery(
@@ -165,12 +159,48 @@ describe('QueryService', () => {
 
 		it('returns high confidence without tools', async () => {
 			mockCreate.mockResolvedValueOnce(
-				textResponse('Simple answer without tools.')
+				textResponse('Simple answer.')
 			)
 
 			const result = await handleQuery('Hello')
 
 			expect(result.confidence).toBe('high')
+		})
+
+		it('returns low confidence after exhausted rounds',
+			async () => {
+				// All 5 rounds return tool_use
+				for (let i = 0; i < 5; i++) {
+					mockCreate.mockResolvedValueOnce(
+						toolUseResponse('lookup_preflop_range', {
+							position: 'BTN',
+							scenario: 'open',
+							stack_depth_bb: 100,
+							table_size: '6max',
+						})
+					)
+				}
+
+				const result = await handleQuery(
+					'Infinite loop question'
+				)
+
+				expect(result.confidence).toBe('low')
+				expect(result.answer).toContain(
+					'unable to complete'
+				)
+				expect(mockCreate).toHaveBeenCalledTimes(5)
+			}
+		)
+
+		it('propagates Claude API errors', async () => {
+			mockCreate.mockRejectedValueOnce(
+				new Error('API rate limit exceeded')
+			)
+
+			expect(
+				handleQuery('Will this fail?')
+			).rejects.toThrow('API rate limit exceeded')
 		})
 	})
 })
