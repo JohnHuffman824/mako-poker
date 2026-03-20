@@ -15,9 +15,10 @@
 		"db:seed": "bun run src/db/seed/index.ts"
 	},
 	"dependencies": {
-		"@mako/shared": "workspace:*",
+		"@anthropic-ai/sdk": "^0.80.0",
 		"@elysiajs/cors": "^1.1.1",
 		"@elysiajs/jwt": "^1.1.1",
+		"@mako/shared": "workspace:*",
 		"drizzle-orm": "^0.36.1",
 		"elysia": "^1.1.26",
 		"postgres": "^3.4.5"
@@ -28,4 +29,3 @@
 		"typescript": "^5.0.4"
 	}
 }
-
