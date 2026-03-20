@@ -21,26 +21,7 @@ export interface PreflopRangeEntry {
 	source: string
 }
 
-// All 169 starting hand combos (13 pairs + 78 suited + 78 offsuit)
-const ALL_HANDS = generateAllHands()
-
-function generateAllHands(): string[] {
-	const ranks = [
-		'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'
-	]
-	const hands: string[] = []
-	for (let i = 0; i < ranks.length; i++) {
-		// Pairs
-		hands.push(ranks[i] + ranks[i])
-		for (let j = i + 1; j < ranks.length; j++) {
-			// Suited
-			hands.push(ranks[i] + ranks[j] + 's')
-			// Offsuit
-			hands.push(ranks[i] + ranks[j] + 'o')
-		}
-	}
-	return hands
-}
+import { ALL_HANDS } from './hands'
 
 /**
  * Create a range table where everything folds except the

@@ -7,7 +7,7 @@
 
 import { db } from '../db/client'
 import { preflopRanges, pushFoldCharts } from '../db/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, type SQL } from 'drizzle-orm'
 
 type ActionFrequencies = Record<string, number>
 type RangeTable = Record<string, ActionFrequencies>
@@ -30,10 +30,16 @@ export interface HandRecommendation {
 	alternatives?: Array<{ action: string; frequency: number }>
 }
 
-const PREFLOP_STACK_DEPTHS = [10, 15, 20, 25, 30, 40, 50, 75, 100]
+const PREFLOP_STACK_DEPTHS = [
+	10, 15, 20, 25, 30, 40, 50, 75, 100,
+]
 const PUSH_FOLD_STACK_DEPTHS = [5, 8, 10, 15, 20]
 
-function findNearestDepth(
+const ACTION_PRIORITY: Record<string, number> = {
+	raise: 3, call: 2, fold: 1,
+}
+
+export function findNearestDepth(
 	target: number,
 	buckets: number[]
 ): number {
@@ -49,54 +55,50 @@ function findNearestDepth(
 	return nearest
 }
 
+async function queryOne<T>(
+	table: typeof preflopRanges | typeof pushFoldCharts,
+	conditions: SQL[]
+): Promise<T | null> {
+	const rows = await db
+		.select()
+		.from(table)
+		.where(and(...conditions))
+		.limit(1)
+	return rows.length > 0 ? (rows[0].ranges as T) : null
+}
+
 export async function lookupPreflopRange(
 	position: string,
 	scenario: string,
 	stackDepthBb: number,
 	tableSize: string
 ): Promise<PreflopRangeResult | null> {
-	// Try exact match first
-	const exact = await db
-		.select()
-		.from(preflopRanges)
-		.where(
-			and(
-				eq(preflopRanges.position, position),
-				eq(preflopRanges.scenario, scenario),
-				eq(preflopRanges.stackDepthBb, stackDepthBb),
-				eq(preflopRanges.tableSize, tableSize)
-			)
-		)
-		.limit(1)
+	const conditions = (depth: number) => [
+		eq(preflopRanges.position, position),
+		eq(preflopRanges.scenario, scenario),
+		eq(preflopRanges.stackDepthBb, depth),
+		eq(preflopRanges.tableSize, tableSize),
+	]
 
-	if (exact.length > 0) {
-		return {
-			ranges: exact[0].ranges as RangeTable,
-			confidence: 'high',
-			matchType: 'exact',
-		}
+	const exact = await queryOne<RangeTable>(
+		preflopRanges, conditions(stackDepthBb)
+	)
+	if (exact) {
+		return { ranges: exact, confidence: 'high', matchType: 'exact' }
 	}
 
-	// Try nearest stack depth bucket
-	const nearest = findNearestDepth(stackDepthBb, PREFLOP_STACK_DEPTHS)
+	// Nearest bucket — if same as input, no data exists
+	const nearest = findNearestDepth(
+		stackDepthBb, PREFLOP_STACK_DEPTHS
+	)
 	if (nearest == stackDepthBb) return null
 
-	const interpolated = await db
-		.select()
-		.from(preflopRanges)
-		.where(
-			and(
-				eq(preflopRanges.position, position),
-				eq(preflopRanges.scenario, scenario),
-				eq(preflopRanges.stackDepthBb, nearest),
-				eq(preflopRanges.tableSize, tableSize)
-			)
-		)
-		.limit(1)
-
-	if (interpolated.length > 0) {
+	const interpolated = await queryOne<RangeTable>(
+		preflopRanges, conditions(nearest)
+	)
+	if (interpolated) {
 		return {
-			ranges: interpolated[0].ranges as RangeTable,
+			ranges: interpolated,
 			confidence: 'medium',
 			matchType: 'interpolated',
 		}
@@ -110,49 +112,29 @@ export async function lookupPushFold(
 	stackDepthBb: number,
 	tableSize: string
 ): Promise<PushFoldResult | null> {
-	// Try exact match first
-	const exact = await db
-		.select()
-		.from(pushFoldCharts)
-		.where(
-			and(
-				eq(pushFoldCharts.position, position),
-				eq(pushFoldCharts.stackDepthBb, stackDepthBb),
-				eq(pushFoldCharts.tableSize, tableSize)
-			)
-		)
-		.limit(1)
+	const conditions = (depth: number) => [
+		eq(pushFoldCharts.position, position),
+		eq(pushFoldCharts.stackDepthBb, depth),
+		eq(pushFoldCharts.tableSize, tableSize),
+	]
 
-	if (exact.length > 0) {
-		return {
-			ranges: exact[0].ranges as PushFoldRanges,
-			confidence: 'high',
-		}
+	const exact = await queryOne<PushFoldRanges>(
+		pushFoldCharts, conditions(stackDepthBb)
+	)
+	if (exact) {
+		return { ranges: exact, confidence: 'high' }
 	}
 
-	// Try nearest stack depth bucket
 	const nearest = findNearestDepth(
 		stackDepthBb, PUSH_FOLD_STACK_DEPTHS
 	)
 	if (nearest == stackDepthBb) return null
 
-	const interpolated = await db
-		.select()
-		.from(pushFoldCharts)
-		.where(
-			and(
-				eq(pushFoldCharts.position, position),
-				eq(pushFoldCharts.stackDepthBb, nearest),
-				eq(pushFoldCharts.tableSize, tableSize)
-			)
-		)
-		.limit(1)
-
-	if (interpolated.length > 0) {
-		return {
-			ranges: interpolated[0].ranges as PushFoldRanges,
-			confidence: 'medium',
-		}
+	const interpolated = await queryOne<PushFoldRanges>(
+		pushFoldCharts, conditions(nearest)
+	)
+	if (interpolated) {
+		return { ranges: interpolated, confidence: 'medium' }
 	}
 
 	return null
@@ -168,32 +150,27 @@ export async function getHandRecommendation(
 	const rangeResult = await lookupPreflopRange(
 		position, scenario, stackDepthBb, tableSize
 	)
-
 	if (!rangeResult) return null
 
 	const handActions = rangeResult.ranges[hand]
 	if (!handActions) return null
 
-	// Find the primary action (highest frequency)
-	// Tiebreaker: prefer raise > call > fold
-	const actionPriority: Record<string, number> = {
-		raise: 3, call: 2, fold: 1,
-	}
+	// Sort by frequency, tiebreak: raise > call > fold
 	const entries = Object.entries(handActions)
 	entries.sort((a, b) => {
 		const freqDiff = b[1] - a[1]
 		if (freqDiff != 0) return freqDiff
-		return (actionPriority[b[0]] ?? 0) -
-			(actionPriority[a[0]] ?? 0)
+		return (ACTION_PRIORITY[b[0]] ?? 0) -
+			(ACTION_PRIORITY[a[0]] ?? 0)
 	})
 
 	const [action, frequency] = entries[0]
-
-	// Build alternatives (any action that isn't the primary)
 	const alternatives = entries
 		.slice(1)
 		.filter(([, freq]) => freq > 0)
-		.map(([act, freq]) => ({ action: act, frequency: freq }))
+		.map(([act, freq]) => ({
+			action: act, frequency: freq,
+		}))
 
 	return {
 		action,

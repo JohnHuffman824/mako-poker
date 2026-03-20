@@ -2,6 +2,9 @@
  * Seed runner — inserts curated GTO data into the database.
  *
  * Usage: bun run db:seed
+ *
+ * Runs inside a transaction — if any insert fails, the
+ * entire seed is rolled back and existing data is preserved.
  */
 
 import { db } from '../client'
@@ -12,47 +15,42 @@ import { pushFoldData } from './push-fold-charts'
 async function seed() {
 	const start = Date.now()
 
-	// Clear existing data
-	await db.delete(preflopRanges)
-	await db.delete(pushFoldCharts)
+	await db.transaction(async (tx) => {
+		await tx.delete(preflopRanges)
+		await tx.delete(pushFoldCharts)
 
-	// Insert preflop ranges
-	let preflopCount = 0
-	for (const entry of preflopRangeData) {
-		await db.insert(preflopRanges).values({
-			position: entry.position,
-			scenario: entry.scenario,
-			stackDepthBb: entry.stackDepthBb,
-			tableSize: entry.tableSize,
-			ranges: entry.ranges,
-			source: entry.source,
-		})
-		preflopCount++
-	}
+		await tx.insert(preflopRanges).values(
+			preflopRangeData.map((e) => ({
+				position: e.position,
+				scenario: e.scenario,
+				stackDepthBb: e.stackDepthBb,
+				tableSize: e.tableSize,
+				ranges: e.ranges,
+				source: e.source,
+			}))
+		)
 
-	// Insert push/fold charts
-	let pushFoldCount = 0
-	for (const entry of pushFoldData) {
-		await db.insert(pushFoldCharts).values({
-			position: entry.position,
-			stackDepthBb: entry.stackDepthBb,
-			tableSize: entry.tableSize,
-			ranges: entry.ranges,
-			source: entry.source,
-		})
-		pushFoldCount++
-	}
+		await tx.insert(pushFoldCharts).values(
+			pushFoldData.map((e) => ({
+				position: e.position,
+				stackDepthBb: e.stackDepthBb,
+				tableSize: e.tableSize,
+				ranges: e.ranges,
+				source: e.source,
+			}))
+		)
+	})
 
 	const elapsed = Date.now() - start
-	const total = preflopCount + pushFoldCount
+	const preflopCount = preflopRangeData.length
+	const pushFoldCount = pushFoldData.length
 
 	process.stdout.write(
-		`Seeded ${total} tables in ${elapsed}ms\n` +
+		`Seeded ${preflopCount + pushFoldCount} tables ` +
+		`in ${elapsed}ms\n` +
 		`  Preflop ranges: ${preflopCount}\n` +
 		`  Push/fold charts: ${pushFoldCount}\n`
 	)
-
-	process.exit(0)
 }
 
 seed().catch((err) => {
